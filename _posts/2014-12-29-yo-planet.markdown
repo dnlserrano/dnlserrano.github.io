@@ -4,7 +4,7 @@ title:      "Yo Planet!"
 subtitle:   "hello world"
 date:       2014-12-29 22:53:00
 author:     "Daniel Serrano"
-header-img: "img/yo-planet.jpg"
+header-img: "img/yo-planet/cover.jpg"
 header-img-author-name: Roch Hart
 header-img-author-url: "https://www.flickr.com/photos/29864089@N06/"
 ---
