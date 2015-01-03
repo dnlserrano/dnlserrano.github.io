@@ -29,7 +29,7 @@ So, getting back to that line. Guess what? Yep, that's right, I *carefully re-wr
 
 ![alt text](/img/chameleon-character/diff.png "The diff")
 
-We were now pretty convinced something should be happening having to do with character encoding. But what could it be?
+We were now pretty convinced something related to character enconding must be going the wrong way. But what could it be?
 
 > This is strange.
 
