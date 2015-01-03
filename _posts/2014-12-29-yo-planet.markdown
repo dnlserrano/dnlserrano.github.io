@@ -1,0 +1,17 @@
+---
+layout:     post
+title:      "Yo Planet!"
+subtitle:   "hello world"
+date:       2014-12-29 22:53:00
+author:     "Daniel Serrano"
+header-img: "img/yo-planet.jpg"
+header-img-author-name: Roch Hart
+header-img-author-url: "https://www.flickr.com/photos/29864089@N06/"
+---
+
+This is the first post of my personal blog.
+I think it is going to be a kind of collection of fun or weird things surrounding code and life in general. I'm still making it up as I go along.
+
+If you ever want to hit me up, feel free to do so [@dnlserrano](https://www.twitter.com/dnlserrano).
+
+See you in a bit.
