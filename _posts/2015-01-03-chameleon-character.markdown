@@ -21,7 +21,7 @@ We quickly realized something must be very off for that to be happening. I final
 if (_.isUndefined(this.collection)) { return false; }
 ```
 
-Now, comes the weird part. I have been using [Sublime](http://www.sublimetext.com/) as my main text editor (since I am yet to be converted to Vimism — or [The Church of Emacs](https://www.youtube.com/watch?v=S76pHIYx3ik) for that matter) and I had been getting weird syntax errors in ruby *near* curly braces. I actually thought the error involved the curly braces themselves (some weird encoding I was inadvertently feeding Sublime with).
+Now, comes the weird part. I have been using [Sublime](http://www.sublimetext.com/) as my main text editor (since I am yet to be converted to Vimism — or [The Church of Emacs](https://www.youtube.com/watch?v=S76pHIYx3ik) for that matter) and I had been getting weird syntax errors in Ruby *near* curly braces. I actually thought the error involved the curly braces themselves (some weird encoding I was inadvertently feeding Sublime with).
 
 I would (wait for it...) *carefully re-write* my curly braces (and some characters near them, mostly spaces) and everything would then work as expected. I didn't know why this was happening in the first place or how I was being able to solve it, but *careful re-write* could not be the answer.
 
