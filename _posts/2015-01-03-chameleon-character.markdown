@@ -11,7 +11,7 @@ header-img-author-url: "https://www.flickr.com/photos/ivandupont/"
 
 > I was not expecting that diff.
 
-It all started around 4 p.m. in the afternoon of December 29th. It was a typical day at [Talkdesk](http://www.talkdesk.com/). But a `gf master`, followed by a `gm origin/master` (I use [aliases](https://github.com/sorin-ionescu/prezto/blob/master/modules/git/alias.zsh) courtesy of [prezto](https://github.com/sorin-ionescu/prezto)) would change it all.
+It all started around 4 p.m. in the afternoon of December 29th. It was a typical day at [Talkdesk](http://www.talkdesk.com/). But a `gf`, followed by a `gm origin/master` (I use [aliases](https://github.com/sorin-ionescu/prezto/blob/master/modules/git/alias.zsh) courtesy of [prezto](https://github.com/sorin-ionescu/prezto)) would change it all.
 
 After merging, I ran our front-end specs and got way too many errors. I started discussing with [@quimrstorres](https://twitter.com/quimrstorres) possible reasons for it to have happened as I happened to know he had been messing around with `master` not long before the *strange event*.
 
@@ -45,11 +45,11 @@ Then, the ill-behaved one:
 
 The space character (hex value `20`) had been replaced by two other bytes. There it was! But what did `C2 A0` mean, after all?
 
-Turns out, in [UTF-8](http://www.utf8-chartable.de/) this translates to the non-breaking space character. This was our *chameleon character*. Instead of the *seemingly* normal space, me and [@quimrstorres](https://twitter.com/quimrstorres) were inadvertently inserting nbsps to our code. But why?
+Turns out, in [UTF-8](http://www.utf8-chartable.de/) this translates to the non-breaking space character. This was our *chameleon character*. Instead of the *normal* space, me and [@quimrstorres](https://twitter.com/quimrstorres) were inadvertently inserting nbsps to our code. But why?
 
 In Mac OS X Yosemite, you are able to insert the nsbp character by hitting `option + space`. This is also our shortcut to bring up [Alfred](http://www.alfredapp.com/). So, most of the time, when we hit the poisonous combo (responsible for generating nsbps), we get Alfred instead. But when we have another key in the mixture (namely `shift`) we effectively silence Alfred, letting Mac OS X interpret the unintended character. And that's exactly what happens when we have to write a curly brace. Out of habit, we will often times write a space before a curly brace (be it a closing `}` or opening one `{`), which in our *qwerty-based* fingers will sometimes cause us to be pressing shift even before we need to, leading to the following:
 
- 1. `shift + (right) option + space` (notice the unnecessary shift)
+ 1. `shift + (right) option + space` (notice the unnecessary shift+option)
  2. `shift + (right) option + 9` (for the closing curly brace, present in the snippet that caused all this)
 
 I looked for a way to solve this permanently in OSX and found [this stackoverflow answer](http://superuser.com/a/142573). Basically, you just add the following key-bind to your `~/Library/KeyBindings/DefaultKeyBinding.dict` file (you might not have one yet):
