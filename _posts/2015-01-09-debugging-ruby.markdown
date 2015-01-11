@@ -9,7 +9,7 @@ header-img-author-name: Gilad Benari
 header-img-author-url: "https://www.flickr.com/photos/giladbenari/"
 ---
 
-Following the principles transmitted by my teammates at [Talkdesk](http://www.talkdesk.com/), instilled on them through the blogs and books by software craftsmen (and women) like Michael Feathers, Sandi Metz and Uncle Bob just to name a few, I try to always write tests that cover the functionality I am implementing.
+Following the principles transmitted by my teammates at [Talkdesk](http://www.talkdesk.com/), instilled on them through the blogs and books by software craftsmen and women like Michael Feathers, Sandi Metz and Uncle Bob just to name a few, I always try to write tests that cover the functionality I am implementing.
 
 I cannot yet say I am truly following a *test-driven development* approach, since I still find myself falling into the implementation (almost unconsciously), eventually getting back to the tests. However, I push myself to stick with test-first and follow the Red, Green, Refactor cycle.
 
