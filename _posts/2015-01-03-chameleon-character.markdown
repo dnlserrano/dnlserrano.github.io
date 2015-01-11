@@ -17,9 +17,9 @@ After merging, I ran our front-end specs and got way too many errors. I started 
 
 We quickly realized something must be very off for that to be happening. I finally narrowed my search down to one file (bare with me, I don't recall exactly how, but an error of some sort must have happened which allowed me to track that file). The line was this one:
 
-```
-if (_.isUndefined(this.collection)) { return false; }
-```
+{% highlight javascript %}
+if (_.isUndefined(this.collection)) { return false; }
+{% endhighlight %}
 
 Now, comes the weird part. I have been using [Sublime](http://www.sublimetext.com/) as my main text editor (since I am yet to be converted to Vimism — or [The Church of Emacs](https://www.youtube.com/watch?v=S76pHIYx3ik) for that matter) and I had been getting weird syntax errors in Ruby *near* curly braces. I actually thought the error involved the curly braces themselves (some weird encoding I was inadvertently feeding Sublime with).
 
