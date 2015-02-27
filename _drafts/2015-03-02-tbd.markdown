@@ -1,0 +1,18 @@
+---
+layout:     post
+title:      "Utility Websites"
+subtitle:   "my do-it-fast-do-it-good-ish toolbox"
+date:       2015-03-02 10:00:00
+author:     "Daniel Serrano"
+header-img: "img/utility-websites/cover.png"
+header-img-author-name: "Dan Anderson"
+header-img-author-url: "https://www.flickr.com/photos/stonebridgedapper/"
+---
+
+Tom Preston-Werner, one of the co-founders of GitHub, creator of Gravatar and Jekyll (on which this blog runs) recently tweeted:
+
+<center><blockquote class="twitter-tweet" lang="en"><p>I love trivial but super useful utility websites like <a href="http://t.co/pzvLfbfLpy">http://t.co/pzvLfbfLpy</a> and <a href="http://t.co/dkhf7qgygE">http://t.co/dkhf7qgygE</a>. What are your favorites?</p>&mdash; Tom Preston-Werner (@mojombo) <a href="https://twitter.com/mojombo/status/555121976155865088">January 13, 2015</a></blockquote>
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script></center>
+
+This led me to ponder about what are *my* most used utility websites. I thought I'd share them with you.
+

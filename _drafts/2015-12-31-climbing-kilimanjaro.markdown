@@ -5,7 +5,7 @@ subtitle:   "why company culture matters"
 date:       2015-12-31 10:00:00
 author:     "Daniel Serrano"
 header-img: "img/climbing-kilimanjaro/cover.png"
-header-img-author-name: Alistair Merrifield
+header-img-author-name: "Alistair Merrifield"
 header-img-author-url: "https://www.flickr.com/photos/alistairkiwi/"
 ---
 
