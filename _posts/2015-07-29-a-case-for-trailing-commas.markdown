@@ -13,7 +13,7 @@ Talkdesk is growing and as that happens, we are expanding our engineering team o
 
 Here is the interaction:
 
-![alt text](/img/a-case-for-trailing-commas/github.png "Code review")
+![Code Review](/img/a-case-for-trailing-commas/github.png "Code review")
 
 The trailing comma was indeed intentional.
 
