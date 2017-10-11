@@ -2,12 +2,14 @@
 layout:     post
 title:      "Monolith: The Breaking"
 subtitle:   "my talk at PixelsCamp"
-date:       2017-10-10 22:00:00
+date:       2017-10-11 10:00:00
 author:     "Daniel Serrano"
 header-img: "img/monolith-the-breaking/cover.png"
 ---
 
 Another year, another edition of [PixelsCamp](https://pixels.camp) (formerly, SAPO Codebits). And this year, I was fortunate enough to not only attend it, but also present a talk. Giving back to the community is something one should do, if only from time to time. Either be it by blog posts, open source projects or talks such as this one. And it all went very well for my first time on stage. Lots of familiar faces in the front rows helped, of course. My teammates from Onfido and friends from Talkdesk showed up to cheer for me. And it felt amazing!
+
+![](/img/monolith-the-breaking/stage.png)
 
 Since at Onfido we've been deploying lots of microservices, and the team I am in was responsible for two of those critical services that were extracted from our existing monolith, I thought about doing a talk highlighting some of our internal best practices, architectural choices we made and design alternatives.
 
@@ -184,3 +186,5 @@ API Gateway. Microservices typically offer fine-grained APIs, causing clients to
 ![](/img/monolith-the-breaking/images.045.png)
 
 The end.
+
+Until next year, PixelsCamp!
