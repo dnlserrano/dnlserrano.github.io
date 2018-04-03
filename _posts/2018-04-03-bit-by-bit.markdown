@@ -1,0 +1,64 @@
+---
+layout:     post
+title:      "Bit by bit"
+subtitle:   "how I improved my vim workflow this past week"
+date:       2018-04-03 09:00:00
+author:     "Daniel Serrano"
+header-img: "img/bit-by-bit/cover.png"
+header-img-author-name: "Daniel Serrano"
+header-img-author-url: "https://dnlserrano.github.io"
+---
+
+Bit by bit, that's how I update [my dotfiles](https://github.com/dnlserrano/dotfiles). I guess that's the way most people do it, too.
+
+Today, I talk to you about the two recent improvements I made on my code editing/vim workflow. My colleague André (catch him [@lejboua](https://twitter.com/lejboua)) is also a vimmer. He's the proper one, keyboard nerd and all. He had already hinted me about The Proper Use of NERDTree™. I listened.
+
+At Onfido, we do a lot of pair programming, particularly when dealing with problems or domains we're not comfortable about tackling on our own, or that we feel will drag us back if done alone. We've been working in our internal facial similarity check product and that is, to a great extent, powered by Elixir. Since I'm not super familiared with the language yet (getting there...), André has been a good source of knowledge and support throughout this journey. As a fellow vimmer, when we were pairing, he noticed I didn't make the most out of NERDTree. _Why?_, I asked. Well, because when I opened my NERDTree, the file I was currently traversing on the active buffer did not reveal itself in the tree of files when toggling. When you want to get around a project and get familiared with it, that helps a lot!
+
+And so, after a while of hearing about this possible improvement, I went for it. I tried to do it myself first, but eventually found the solution online. My final vimscript to achieve the desired result was an adaptation of [this StackOverflow answer](https://stackoverflow.com/a/46171509) and also [this other one](https://stackoverflow.com/a/41544696). So, there you have it, my vim improvement #1:
+
+- **Reveal or show file in current buffer in NERDTree or toggle tree if NERDTree already open**
+
+```vimscript
+" NERDTree
+function! IsNerdTreeEnabled()
+  return exists('t:NERDTreeBufName') && bufwinnr(t:NERDTreeBufName) != -1
+endfunction
+
+function! MyNerdToggle()
+  if IsNerdTreeEnabled() || bufname('%') == ''
+    :NERDTreeToggle
+  else
+    :NERDTreeFind
+  endif
+endfunction
+
+nnoremap <silent> <C-n> :call MyNerdToggle()<CR>
+```
+
+With this, I still use `<C-n>` for both cases, i.e., revealing the file in the tree and hiding the files.
+
+The other improvement I made came about much more naturally (meaning, I didn't have to have someone show me the light, eheh). When coding in Ruby, I had already created a keybinding to write the famous debugging statement `require "pry"; binding.pry`. In the process of transitioning to Elixir, you get accustomed to writing the Elixir counterpart `require IEx; IEx.pry`. This quickly gets in your way as something slow to write and that, as vimmers, we see as an opportunity for optimization. I wanted to keep the same binding for writing a debug statement in both Ruby and Elixir, and I wanted vim to be intelligent enough to distinguish between which one it should use in each file. That was my vim improvement #2:
+
+- **Use same keybinding to add debug statement in Ruby or Elixir**
+
+```vimscript
+" Debuggers
+function! AddDebug()
+  let extension = expand('%:e')
+
+  if (extension == 'ex' || extension == 'exs')
+    call append('.', 'require IEx; IEx.pry')
+  elseif (extension == 'rb')
+    call append('.', 'require "pry"; Pry.pager = nil; binding.pry')
+  endif
+endfunction
+
+nmap <silent> <Leader>p :call AddDebug()<CR>
+```
+
+With this, I kept the binding `<Leader>p` to add my debug statement. According to the file extension, vim will now write in the line below the current selected line in the buffer a debug statement for Elixir (if extension is `.ex` or `.exs`) or Ruby (for the `.rb` extension). I'm thinking about adding it also for `.erb` and `.erb.<anything>`.
+
+Thanks to André for his vim inputs! A vimmer can only be as good as the vimmers that surround him. 😄
+
+_If you're into Elixir, take a look at my colleagues André Albuquerque's and Daniel Caixinha's soon-to-be-released book on the language (and some frameworks around it). Find **Mastering Elixir** [here](https://www.packtpub.com/application-development/mastering-elixir)!_
