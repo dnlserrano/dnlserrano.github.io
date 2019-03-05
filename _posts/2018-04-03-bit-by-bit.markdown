@@ -6,7 +6,7 @@ date:       2018-04-03 09:00:00
 author:     "Daniel Serrano"
 header-img: "img/bit-by-bit/cover.png"
 header-img-author-name: "Daniel Serrano"
-header-img-author-url: "https://dnlserrano.github.io"
+header-img-author-url: "https://dnlserrano.dev"
 ---
 
 Bit by bit, that's how I update [my dotfiles](https://github.com/dnlserrano/dotfiles). I guess that's the way most people do it, too.
