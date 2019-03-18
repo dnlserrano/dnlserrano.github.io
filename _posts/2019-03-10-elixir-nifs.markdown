@@ -11,7 +11,7 @@ header-img-author-url: "https://www.flickr.com/photos/photo-tractatus/"
 
 # Foreign Function Interface
 
-[Foreign function interface](https://en.wikipedia.org/wiki/) is a well-known mechanism whereby a program written in language X interoperates with another program written in language Y.
+[Foreign function interface](https://en.wikipedia.org/wiki/Foreign_function_interface) is a well-known mechanism whereby a program written in language X interoperates with another program written in language Y.
 
 This approach is useful in cases where, developing with language X, you realise you now have a very hard and complex problem that has been solved by a library written in that other language Y. One of such examples is dealing with video. [FFmpeg](http://ffmpeg.org/) is arguably the most common library for dealing with streams of video, and it is written in C. You can analyse metadata, manipulate the video by slicing it, extracting only the audio from it, you name it.
 
