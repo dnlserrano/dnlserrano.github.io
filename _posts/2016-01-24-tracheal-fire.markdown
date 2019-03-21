@@ -27,7 +27,7 @@ Since last year, I've began to listen to some really interesting new artists tha
 
 With a career that goes as far back as 2009, I only really got to know Tory Lanez after his WeDidIt-produced EP ["Cruel Intentions"](http://www.hotnewhiphop.com/tory-lanez-cruel-intentions-new-mixtape.115895.html). In the sickest song of that EP, "In For It", RL Grime produces a kick-filled, hi hat-sprinkled and time-warp-tinted beat only matched by Tory Lanez's delivery of a dark, honest and very real ambiance and overall mood. The rest of the songs speak for themselves and I believe this EP stands out as both a work of Tory Lanez as well as a WeDidIt very well-crafted production effort.
 
-Tory has since then dropped two other mixtapes, ["Chixtape III"](http://www.hotnewhiphop.com/tory-lanez-chixtape-3-new-mixtape.116189.html) and ["The New Toronto"](http://www.hotnewhiphop.com/tory-lanez-the-new-toronto-new-mixtape.116190.html), this last one containing the banger "Makaveli", in which Tory shows he doesn't just sing but he is also able to spit fast, nasty, sing-along-type rhymes. And also "Other Side", to reminds us he "came from the bottom" and that "they did [him] no favors." His ego is enormous. "Illest nigga since big poppa."
+Tory has since then dropped two other mixtapes, ["Chixtape III"](http://www.hotnewhiphop.com/tory-lanez-chixtape-3-new-mixtape.116189.html) and ["The New Toronto"](http://www.hotnewhiphop.com/tory-lanez-the-new-toronto-new-mixtape.116190.html), this last one containing the banger "Makaveli", in which Tory shows he doesn't just sing but he is also able to spit fast, nasty, sing-along-type rhymes. And also "Other Side", to reminds us he "came from the bottom" and that "they did [him] no favors." His ego is enormous. "Illest n\*gga since big poppa."
 
 Aside from the EPs and mixtapes, Tory has been putting out [song](https://www.youtube.com/watch?v=-rO7_UAxBqk) [after](https://www.youtube.com/watch?v=xUq1rZ7mmns) [song](https://www.youtube.com/watch?v=7K239Z8YzWI) unrelated with any of the aforementioned projects. They're heavy. Get on it.
 
@@ -51,7 +51,7 @@ When he dropped his full-length mixtape, ["TRAPSOUL"](https://itunes.apple.com/u
 
 "They begging for mercy like the Lambo." All of this, really. I don't mean to sound like a fanboy, but I realize by now that I really can't hide it. If you don't believe that this guy is good, just listen to the album. And then try not to listen to it again. I doubt you'll be able to.
 
-"I'm as humble as they come, but you're fucking with the wrong one." Damn!
+"I'm as humble as they come, but you're f\*cking with the wrong one." Damn!
 
 Thankfully, he suffers from the same condition as Tory Lanez, and he just can't stop dropping new material. His SoundCloud is full of [exclusive](https://soundcloud.com/brysontiller/bryson-tiller-self-righteous-prod-by-ayo) [hits](https://soundcloud.com/brysontiller/break-bread-feat-king-vory) and [freestyles](https://soundcloud.com/brysontiller/dont-worry-molly-freestyle).
 
