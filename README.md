@@ -1,3 +1,3 @@
 My personal blog
 
-https://dnlserrano.github.io/
+https://dnlserrano.dev
