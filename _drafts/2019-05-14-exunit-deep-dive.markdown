@@ -22,15 +22,9 @@ Finished in 1.9 seconds
 Randomized with seed 280579
 ```
 
-What's happening behind the curtains?
+Going into this, I had the feeling it was a bit of macro magic. I could guess `ex_unit` made use of BEAM processes in a clever way and that's what made it so fast. These were hunches, thoughts, ideas. It still wasn't concrete.
 
-> "Processes are spawned for each test, that's why it's so fast!"
->
-> "It's all macro magic!"
->
-> "José and the rest of the core team are mad scientists, it's all in their heads and the code is pretty much indecipherable"
-
-These were some of the sentences I'd heard before when talking about `ex_unit`. I may have made up the last one. 🙊
+What's really happening behind the curtains?
 
 # Genesis
 
@@ -122,27 +116,33 @@ At this point we have a bird's eye view of how this process of running our tests
 
 Now, let's go a level deep, and see exactly how `ex_unit` achieves the incredible level of parallelism it has come to be known for in actually requiring and running the tests.
 
-As we previously saw, the starting point is `CT` (an `alias` for [`Mix.Compilers.Test`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/mix/lib/mix/compilers/test.ex#L1)) which is a custom compiler specific for our testing purposes. [`CT.require_and_run/3`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/mix/lib/mix/compilers/test.ex#L23) does some more chore for particular use cases and then moves on to creating an asynchronous task for running [`ExUnit.run/1`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit.ex#L332-L335) which will be awaited on after we instruct `Kernel.ParallelCompiler` to require our test files and ensure modules are loaded (via `ExUnit.Server.modules_loaded/0`, but doesn't happen right away).
+As we previously saw, the starting point is `CT` (an `alias` for [`Mix.Compilers.Test`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/mix/lib/mix/compilers/test.ex#L1)) which is a custom compiler specific for our testing purposes. [`CT.require_and_run/3`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/mix/lib/mix/compilers/test.ex#L23) does some more chore for particular use cases and then it moves on to the really meaty part.
 
 ```elixir
-task = Task.async(ExUnit, :run, [])
+def require_and_run(matched_test_files, test_paths, opts) do
+  ...
 
-try do
-  case Kernel.ParallelCompiler.require(test_files, parallel_require_callbacks) do
-    {:ok, _, _} -> :ok
-    {:error, _, _} -> exit({:shutdown, 1})
+  task = Task.async(ExUnit, :run, [])
+
+  try do
+    case Kernel.ParallelCompiler.require(test_files, parallel_require_callbacks) do
+      {:ok, _, _} -> :ok
+      {:error, _, _} -> exit({:shutdown, 1})
+    end
+
+    ExUnit.Server.modules_loaded()
+    %{failures: failures} = results = Task.await(task, :infinity)
+
+    ...
+
+    {:ok, results}
+
+    ...
   end
-
-  ExUnit.Server.modules_loaded()
-  %{failures: failures} = results = Task.await(task, :infinity)
-
-  ...
-
-  {:ok, results}
-
-  ...
 end
 ```
+
+It creates an asynchronous task for running [`ExUnit.run/1`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit.ex#L332-L335) which will be awaited on after we instruct `Kernel.ParallelCompiler` to require our test files and ensure modules are loaded (via `ExUnit.Server.modules_loaded/0`).
 
 ---
 
@@ -154,9 +154,13 @@ _As per the Mix documentation:_
 
 > _`:registered` - the name of all registered processes in the application. If your application defines a local GenServer with name `MyServer`, it is recommended to add `MyServer` to this list. It is most useful in detecting conflicts between applications that register the same names._
 
+_This is just informational and a preventive measure when dealing with other applications, though. Where it really gets spawned is in [`ExUnit.start/1`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit.ex#L182), which you will have to call as part of your `test/test_helper.exs`. That's what kicks off [`ExUnit.start/2`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit.ex#L160-L169) creating the `ExUnit.Supervisor` with `ExUnit.Server`, `ExUnit.CaptureServer` and `ExUnit.OnExitHandler` under his wing._
+
+_Now you know why the [minimal setup for `test/test_helpers.exs`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit.ex#L50-L53) is a single-line file reading `ExUnit.start()`._ 😉
+
 ---
 
-That's quite a bit to digest. In short we start a process for running `ExUnit.run/1` and that will be _doing some work_ as tests are parallel-compiled. When the work is finished we wait on that process to end and it will return back the structure with failures and other info (excluded, total, etc.). Parallel compilation is achieved using [`Kernel.ParallelCompiler.require/2`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/elixir/lib/kernel/parallel_compiler.ex#L106).
+That's quite a bit to digest. To recap, we start a process for running `ExUnit.run/1` via an async _task_ and that will be _doing some work_ as tests are parallel-compiled. When the work is finished we *await* on that process (the _task_) to end and it will return back the structure with failures and other info (excluded, total, etc.). Parallel compilation is achieved using [`Kernel.ParallelCompiler.require/2`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/elixir/lib/kernel/parallel_compiler.ex#L106).
 
 ---
 
@@ -199,7 +203,7 @@ _`Kernel.ParallelCompiler.require/2` will be responsible for requiring all of th
 
 ---
 
-Back to [`CT.require_and_run/3`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/mix/lib/mix/compilers/test.ex#L23). Long story short, [`ExUnit.Runner.run/2`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit/runner.ex#L8-L32) gets called with `ex_unit`'s current configuration options and the purpose for that is to have the runner ready to handle parallel compilation, as we discussed.
+Back to [`CT.require_and_run/3`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/mix/lib/mix/compilers/test.ex#L23). Long story short, [`ExUnit.Runner.run/2`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit/runner.ex#L8-L32) [gets called](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit.ex#L334) with `ex_unit`'s current configuration options and the purpose for that is to have the runner ready to handle parallel compilation, as we discussed.
 
 ```elixir
 alias ExUnit.EventManager, as: EM
