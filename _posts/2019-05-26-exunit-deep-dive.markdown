@@ -2,7 +2,7 @@
 layout:     post
 title:      "ExUnit Deep Dive"
 subtitle:   "through the looking-glass"
-date:       2019-05-14 10:00:00
+date:       2019-05-26 11:54:00
 author:     "Daniel Serrano"
 header-img: "img/exunit-deep-dive/cover.jpg"
 header-img-author-name: "Louis Reed"
@@ -25,6 +25,8 @@ Randomized with seed 280579
 Going into this, I had the feeling it was a bit of macro magic. I could guess `ex_unit` made use of BEAM processes in a clever way and that's what made it so fast. These were hunches, thoughts, ideas. It still wasn't concrete.
 
 What's really happening behind the curtains?
+
+_**Disclaimer**: The codebase analysed is Elixir **v1.8.1**._
 
 # Genesis
 
@@ -75,7 +77,7 @@ defmodule Cover do
 end
 ```
 
-`Cover.start/2` instructs the BEAM to track coverage over the files on the project's compile path. It then goes on to return a function which, once run, will do the actuall exporting of the results displaying the result in the console, as well as producing an HTML coverage file.
+`Cover.start/2` instructs the BEAM to track coverage over the files on the project's compile path. It then goes on to return a function which, once run, will do the actual exporting of the results displaying the result in the console, as well as producing an HTML coverage file.
 
 Let's get back to the `run/1` callback of the mix task.
 
@@ -154,7 +156,7 @@ _As per the Mix documentation:_
 
 > _`:registered` - the name of all registered processes in the application. If your application defines a local GenServer with name `MyServer`, it is recommended to add `MyServer` to this list. It is most useful in detecting conflicts between applications that register the same names._
 
-_This is just informational and a preventive measure when dealing with other applications, though. Where it really gets spawned is in [`ExUnit.start/1`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit.ex#L182), which you will have to call as part of your `test/test_helper.exs`. That's what kicks off [`ExUnit.start/2`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit.ex#L160-L169) creating the `ExUnit.Supervisor` with `ExUnit.Server`, `ExUnit.CaptureServer` and `ExUnit.OnExitHandler` under his wing._
+_This is just informational and a preventive measure when dealing with other applications, though. Where it really gets spawned is in [`ExUnit.start/1`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit.ex#L182), which you will have to call as part of your `test/test_helper.exs`. That's what kicks off [`ExUnit.start/2`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit.ex#L160-L169) creating the `ExUnit.Supervisor` with `ExUnit.Server`, `ExUnit.CaptureServer` and `ExUnit.OnExitHandler` under its wing._
 
 _Now you know why the [minimal setup for `test/test_helpers.exs`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit.ex#L50-L53) is a single-line file reading `ExUnit.start()`._ 😉
 
@@ -170,7 +172,7 @@ _That's a lot of compilers. We've compiled our app from source, called `Mix.Comp
 
 _Compilers are important in `ex_unit` because of the `ExUnit.Case` clause you annotate your test modules with._
 
-_During test compilation we require the tests to be run via [`CT.require_and_run/3`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/mix/lib/mix/compilers/test.ex#L23). That compiles the test code in parallel as we saw (via [`Kernel.ParallelCompiler.require/2`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/mix/lib/mix/compilers/test.ex#L39)). When you do `use ExUnit.Case, async: true` at the top of your Elixir tests, you're adding some specific behaviour whereby each time you use `test` you really end up telling the compiler to unfold [a macro](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit/case.ex#L270-L293) that [registers a test](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit/case.ex#L290)._
+_During test compilation we require the tests to be run via [`CT.require_and_run/3`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/mix/lib/mix/compilers/test.ex#L23). That compiles the test code in parallel as we saw (via [`Kernel.ParallelCompiler.require/2`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/mix/lib/mix/compilers/test.ex#L39)). When you do `use ExUnit.Case` at the top of your Elixir tests, you're adding some specific behaviour whereby each time you use `test` you really end up telling the compiler to unfold [a macro](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit/case.ex#L270-L293) that [registers a test](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit/case.ex#L290)._
 
 ```elixir
 def register_test(%{module: mod, file: file, line: line}, test_type, name, tags) do
@@ -203,7 +205,7 @@ _`Kernel.ParallelCompiler.require/2` will be responsible for requiring all of th
 
 ---
 
-Back to [`CT.require_and_run/3`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/mix/lib/mix/compilers/test.ex#L23). Long story short, [`ExUnit.Runner.run/2`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit/runner.ex#L8-L32) [gets called](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit.ex#L334) with `ex_unit`'s current configuration options and the purpose for that is to have the runner ready to handle parallel compilation, as we discussed.
+Back to [`CT.require_and_run/3`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/mix/lib/mix/compilers/test.ex#L23). Long story short, [`ExUnit.Runner.run/2`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit/runner.ex#L8-L32) [gets called](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit.ex#L334) with `ex_unit`'s current configuration options (via the [_async_ Task](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/mix/lib/mix/compilers/test.ex#L36) we mentioned) and the purpose for that is to have the runner ready to handle parallel compilation, as we discussed.
 
 ```elixir
 alias ExUnit.EventManager, as: EM
@@ -319,18 +321,52 @@ These modules are handed over to the calling process by means of calling `GenSer
 
 This is one of those Aha! moments. Stay with me.
 
+```elixir
+def __after_compile__(%{module: module}, _) do
+  if Module.get_attribute(module, :ex_unit_async) do
+    ExUnit.Server.add_async_module(module)
+  else
+    ExUnit.Server.add_sync_module(module)
+  end
+end
+```
+
 Remember `ExUnit.Case`? It defines an [`__after_compile__`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit/case.ex#L427-L433) [hook](https://hexdocs.pm/elixir/Module.html#module-after_compile) on each test module to conditonally add it in a sync or async fashion to the test suite (via `ExUnit.Server`).
 
 As test modules are being compiled, they're being added to `ExUnit.Server` and then picked up by the same `ExUnit.Server` when some other resource requests it a specific amount of modules to _take_ (i.e., for which to run its tests).
 
-The _holy loop_ continues until we're left with sync modules only. Dig through the code to know exactly at which moments the various `test_started`, `test_finished`, etc. notifications are sent to the event manager.
+The _holy loop_ continues until [we're left with sync modules only](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit/runner.ex#L73-L75). You can explore the code to understand exactly at what moments (and how) messages are passed between processes to guarantee all tests are run and failures are guaranteed to be safely bubbled up to the user.
 
----
+The crux of it though is understanding exactly how a test ends up running. It happens in the private function [`ExUnit.Runner.exec_test/1`](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit/runner.ex#L354-L360):
 
-- test_helper.ex
-  - ExUnit.start()
-  - configs...
-- test macro
-- assert functions
-- back to ExUnit.start() flow, go to Runner, spawn_modules, cover, Formatter
-- Wrap up with tease to exavier
+```elixir
+defp exec_test(%ExUnit.Test{module: module, name: name, tags: context} = test) do
+  apply(module, name, [context])
+  test
+catch
+  kind, error ->
+    %{test | state: failed(kind, error, prune_stacktrace(__STACKTRACE__))}
+end
+```
+
+Running the test entails [`apply`ing](https://hexdocs.pm/elixir/Kernel.html#apply/3) a function from the test module given that test context. The function that is called gets defined by the [`test` macro](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit/case.ex#L291). The name of that function is given by the name you gave to that specific test (e.g., `:"removes the item from the queue"`).
+
+Inside each of the `test`s we define, we use `assert` to confirm the behaviour we expect from our tests. As you can probably guess by now, `assert` is the [macro](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit/assertions.ex#L104) (with [different](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit/assertions.ex#L154) [variations](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit/assertions.ex#L169)) that will cause the test to either [raise an error](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit/assertions.ex#L179) or not.
+
+If running the test fails, we catch the error and tag the test as a failure. Otherwise, nothing to see here. We move along returning the test back without changing its `state`, which as we've previously seen in `ExUnit.CLIFormatter` [means it was a success](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/ex_unit/lib/ex_unit/cli_formatter.ex#L44-L56).
+
+All tests run. Macros and spawned processes in a perfectly orchestrated dance of messages and pattern-matching. The test suite ends. Failures are reported back to the user. Analyse, fix, rinse and repeat until green.
+
+# Conclusions
+
+ExUnit is a hell of a framework, and I say that in the best possible way.
+
+Even though we went in a bit deep on this blog post, we've only touched a small part of what ExUnit does and how it achieves it. There are [plenty of optional switches available](https://github.com/elixir-lang/elixir/blob/v1.8.1/lib/mix/lib/mix/tasks/test.ex#L146-L180). Analysing each would take us through lots of different areas of the codebase and would have us learn much more!
+
+I hope I was able to show you how ExUnit takes the most out of Elixir and the BEAM. It leverages the [_"Lispy"_ macro system from Elixir](https://8thlight.com/blog/patrick-gombert/2013/11/26/lispy-elixir.html) while also taking advantage of processes and message passing between them to achieve a highly concurrent solution for running our tests in a greatly optimized manner. On top of that, the testing framework provides callback mechanisms that allow you to hook into the _process_ (pun not intended) of running the tests, which can open a myriad of possibilities.
+
+I have looked deeply into how ExUnit works because I have this idea for a project. I have learned about mutation testing a while back. First in a Ruby meetup here in Portugal where someone presented about [`mutant`](https://github.com/mbj/mutant). Then a colleague of mine talked again about it at a Tech Catchup (a tech event we do at the company I work at, [Onfido](https://onfido.com)). And most recently, a friend of mine [presented about it](https://www.youtube.com/watch?v=DYx-GQ1UoKM) and talked about how they're using it at the company he works at, this time using the JVM-specific [`pitest`](http://pitest.org/) framework. I have something in the works, very rough at this point in time for our beloved Elixir. More news soon... maybe?
+
+#### Acknowledgments
+
+[This tweet](https://twitter.com/whatyouhide/status/1122523444044759040) from Andrea Leopardi ([`@whatyouhide`](https://twitter.com/whatyouhide)) helped me try out hypothesis by quickly changing the Elixir source code for ExUnit locally (i.e., in my machine) using [`asdf`](https://asdf-vm.com/), ultimately contributing to my understanding of some details of the workflow of ExUnit.
