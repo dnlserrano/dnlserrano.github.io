@@ -315,7 +315,7 @@ You can alternatively look for other ways of interacting with code outside the B
 
 NIFs are not a silver bullet. Use them carefully. Or don't use them at all? From what I could read online, the talks I've watched and people I've talked to, it seems to me that [Ports](https://hexdocs.pm/elixir/Port.html) is what you want when you're working with something outside of the BEAM.
 
-#### Links
+#### Acknowledgments
 
 Some useful links that helped me write this blog post follow:
 
