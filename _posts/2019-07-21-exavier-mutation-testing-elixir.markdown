@@ -2,7 +2,7 @@
 layout:     post
 title:      "Mutation testing in Elixir"
 subtitle:   "introducing exavier"
-date:       2019-07-13 12:19:00
+date:       2019-07-22 12:19:00
 author:     "Daniel Serrano"
 header-img: "img/mutation-testing-elixir/cover.jpg"
 header-img-author-name: "Adrien Converse"
