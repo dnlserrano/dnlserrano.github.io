@@ -11,7 +11,7 @@ header-img-author-url: "https://unsplash.com/@lurm"
 
 I first heard about mutation testing when attending a Ruby meetup here in Lisbon. At the time [Tadas](https://twitter.com/tadassce) presentation focused on [`mutant`](https://github.com/mbj/mutant), **the** Ruby library for mutation testing by [mbj](https://twitter.com/_m_b_j_).
 
-It sounded fun, but not very practical. I think that was because I didn't understand the full scope, goals and philosophy, so to speak, of mutation testing. This post will help explore mutation testing and why Elixir is a good candidate to give it a shot. I will then introduce a library I've been working on [`exavier`](https://github.com/dnlserano/exavier) which aims to provide a full-blown mutation testing framework for Elixir.
+It sounded fun, but not very practical. I think that was because I didn't understand the full scope, goals and philosophy, so to speak, of mutation testing. This post will help explore mutation testing and why Elixir is a good candidate to give it a shot. I will then introduce a library I've been working on [`exavier`](https://github.com/dnlserrano/exavier) which aims to provide a full-blown mutation testing framework for Elixir.
 
 It's still very early days, it may be haunted my major design flaws, stupid ideas and this blog post also serves a bit as a call for help. If you're out there reading and you think mutation testing might be your thing and you want to help, hit me up [@dnlserrano](https://twitter.com/dnlserrano) or [open a PR](https://github.com/dnlserrano/exavier).
 
