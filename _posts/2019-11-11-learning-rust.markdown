@@ -1,0 +1,54 @@
+---
+layout:     post
+title:      "Learning Rust"
+subtitle:   "my intro to the language"
+date:       2019-11-11 08:44:00
+author:     "Daniel Serrano"
+header-img: "img/learning-rust/cover.jpg"
+header-img-author-name: "David Boca"
+header-img-author-url: "https://unsplash.com/@davidboca"
+---
+
+I've been learning Rust lately. I have also got back to playing futsal with some friends. Weirdly enough, these two worlds intersected a few weeks ago. This is a summary of my experience learning Rust. Starting with reading about it [here](https://blog.discordapp.com/using-rust-to-scale-elixir-for-11-million-concurrent-users-c6f19fc029d3) and [there](https://hub.packtpub.com/rust-is-the-future-of-systems-programming-c-is-the-new-assembly-intel-principal-engineer-josh-triplett/), eventually getting [the book](https://doc.rust-lang.org/book/), doing a Hackathon project at Onfido using it and then spinning up my own personal project as a way to further experiment with the language.
+
+At this point, Rust is a pretty well-known programming language. I remember one of the first blog posts that really caught my attention to the language appeared expectedly (given Rust started at Mozilla) in the [Mozilla Hacks blog](https://hacks.mozilla.org/2017/11/entering-the-quantum-era-how-firefox-got-fast-again-and-where-its-going-to-get-faster/). In this blog post, Lin Clark introduced Project Quantum. Rust was said to be "a language that was free of [...] data races", and Servo (the browser engine developed in Rust at Mozilla) "made full use of [...] fine-grained parallelism".
+
+Ever since that _"first"_ blog post, lots of articles have been popping up more and more on popular aggregators like [Hacker News](https://news.ycombinator.com) and [Lobsters](https://lobste.rs). And everytime, I would get that [FOMO](https://en.wikipedia.org/wiki/Fear_of_missing_out) feeling. The tipping point came about when learning about more and more developers in the Elixir community which were looking at using Rust as a way to squeeze the most performance out of their resources. This was true for [Bleacher Report](https://www.youtube.com/watch?v=F86JXaCPowo), [Discord](https://blog.discordapp.com/using-rust-to-scale-elixir-for-11-million-concurrent-users-c6f19fc029d3) and more recently [SimpleBet](https://twitter.com/ElixirTalk/status/1164549459134439424).
+
+# Starting out
+
+To start out, I got the official book for ["The Rust Programming Language"](https://www.amazon.com/Rust-Programming-Language-Covers-2018/dp/1718500440) and started reading it at the end of my summer vacations. I stopped for a while, and started thinking about ways I could actually practice what the book was preaching. My initial idea was to implement the [Skip List](https://en.wikipedia.org/wiki/Skip_list) data structure in Rust. It's one of the most fun data structures around so I was excited about reading [the paper that originally introduced it](https://homepage.cs.uiowa.edu/~ghosh/skip.pdf) and about the possiblity of implementing it in Rust, obviously!
+
+So I set out to do so. I installed [`rustup`](https://rustup.rs/), started playing with `cargo` to generate my "Hello, world!" project and moved on to a bit of online tutorial reading about idiomatically writing singly linked lists in Rust. My co-worker [Tom Forbes](https://tomforb.es), who had also been reading about Rust, warned me it might not be an easy task for a first project, given this sort of data structure implementation usually comes with lots of reference handling and non-trivial ownership transfers as a consequence of Rust's ownership rules and borrow checking.
+
+Around the time this was happening, we had a Hackathon at [Onfido](https://onfido.com). My colleague [Daniel Caixinha](https://caixinha.pt) suggested we tried to rewrite one of our machine learning services in Rust, as a way to experiment with the language. He got me and Tom excited, and soon we were a team of 8 trying to actually re-write two microservices instead of just one. Having that much people on board was great. We got to feel different pain points for people more used to one or more of VM-backed, garbage collected and dynamically typed languages. I definitely felt it too. In the end, we completed the re-write of one of the projects, which allowed us to experiment with [Rocket](https://rocket.rs/), [Serde](https://serde.rs/) and the [Rust bindings for Tensorflow](https://github.com/tensorflow/rust). It was a great feeling, to have a working version of something after only 2 days of hacking, when the majority of people had not yet programmed a single line of Rust.
+
+After the Hackathon, I got back to the singly linked lists. I was having to dwelve into `Box`, lifetimes and lots of... I had been warned... ownership transfers. While it made sense, given the language's constraints optimise for safety (while trying to not compromise on speed), it didn't _feel right_.
+
+But I found hope.
+
+One of my personal Rust heroes is [Andrew Gallant](https://github.com/BurntSushi). He's the maintainer of a number of cool projects like [`ripgrep`](https://github.com/BurntSushi/ripgrep), [`xsv`](https://github.com/BurntSushi/xsv) and [`rust-lang/regex`](https://github.com/rust-lang/regex). These are projects [known for their performance](https://blog.burntsushi.net/ripgrep/). As good candidates for role-model projects, I went looking around the code. It looked so much cleaner than the stuff I was having to do to make a singly linked list work. 😭 Was I looking at idiomatic Rust code? Error handling with the [`Result`](https://doc.rust-lang.org/std/result/) type, structs with well-defined fields and mostly primitive or _user-defined_ types, almost never needing to explicitly set lifetimes (thanks to the [_lifetime elision rules_](https://doc.rust-lang.org/book/ch10-03-lifetime-syntax.html?highlight=elision#lifetime-elision)).
+
+# Having fun
+
+Shortly after this, my co-worker Tom kept working on his [personal project](https://github.com/orf/git-workspace), and he [blogged](https://tomforb.es/i-hope-i-hate-this-code-one-day/) about the sense of _fun_ one should thrive for when learning a new programming language.
+
+While skip lists are fun (I highly recommend you reading the paper about them, and particularly understanding the trade-offs when comparing to other data structures), it didn't feel like the right project to continue pursuing in light of the conflicting goals I had: learning the language, not getting sucked into premature optimisation details, and _having fun_!
+
+One way I was having fun outside of programming, was by playing [five-a-side football](https://en.wikipedia.org/wiki/Five-a-side_football) with a group of friends. We usually play at _Estádio Universitário de Lisboa_ and the way I book the football or futsal pitch is by filling in an online form that sends an e-mail with my booking details. Everytime, wherever I am, I need to fill in the same details over and over again. Other than the day, everything is exactly the same: my name, fiscal number, phone number, e-mail, booking hours, preferred pitch, etc. One way to automate this would be to get a template of the absolutely necessary information for a booking, and have a way to submit that info without needing to go about writing it all down in the form ourselves.
+
+I settled on inspecting the POST request. I now had a list of query string parameters where the information for the booking lived. I had the endpoint, and some headers and fields I wasn't sure about. But that was enough to get going. I put my Rust belt on. Created some structs. Springled some [`serde`](https://github.com/serde-rs/serde) magic on top of them for easy serialisation to various different outputs (e.g., [JSON](https://github.com/serde-rs/json), [query string](https://github.com/samscott89/serde_qs), [YAML](https://github.com/dtolnay/serde-yaml), etc.).
+
+At this point, I was ready to hard-code some values to fill in the structs, but I didn't have a way to perform an actual request yet. And so, [`ureq`](https://github.com/algesten/ureq) came to the resque. When I started using it, async-await [hadn't landed in stable Rust yet](https://blog.rust-lang.org/2019/11/07/Async-await-stable.html), and the `ureq` library provided an intuitive sync approach to HTTP request/response handling. It was also more than enough for what I was trying to achieve. Or so I thought...
+
+Because `std::net::ToSocketAddrs` used by `ureq` might return IPv4 or IPv6 addresses, and because the website we try to contact is not fully IPv6 ready, I needed to hack a way to set a preferred IP version in order to prioritise IPv4 on demand. You can find that [here](https://github.com/dnlserrano/ureq/commit/289d7f592660d2fc954636b6ca85cf16c4c84ec0).
+
+When doing the first couple of live requests (I was using a [`sinatra`](http://github.com/sinatra/sinatra) Ruby mock server in the beginning), I couldn't really get a successful e-mail back, although I was seeing 200 responses from the server. Apparently, the form just kept returning 200 even when it didn't actually accept the request. After tinkering a bit with it, I understood this was actually a Drupal form that relied on two _"special"_ fields: `form_id` and `form_build_id`, which were fetched from the DOM of the retrieved form web page. This helps prevent basic replay attacks as well as [CSRF](https://en.wikipedia.org/wiki/Cross-site_request_forgery#Synchronizer_token_pattern). So now I needed to scrape the retrieved web page.
+
+For scraping, I resorted again to a well-supported library in Rust. [`scraper`](https://github.com/programble/scraper) did the trick here. It has a nice API for selecting DOM nodes and searching in them. This was all I needed to fetch the `form_id` and `form_build_id` from the DOM. Cool. Now I could make an actual request. After a few submissions with invalid input (e.g., phone numbers can't have spaces in them), I got it working as expected.
+
+I brushed it up with a nice looking CLI with two distinct forms of input. You can either use a list of option arguments for each field to send as part of the request, or use a YAML configuration file with the necessary form data. For YAML deserialisation, `serde` was used again, via `serde_yaml`. CLI functionality was achieved using the well-known [`clap`](https://github.com/clap-rs/clap) Rust library, which even allows you to use a YAML file to describe your CLI options.
+
+I called it [`futbladaj`](https://github.com/dnlserrano/futbladaj).
+
+There are still lots of improvements to make. If I think I'll keep having fun doing those, I might get back to this project. Otherwise, I'll just move on to something else. It was fun and it served its purpose well. Rust is nice. It is fun. It's also rigid but with that rigidity comes power. Power to not fail miserably in production. Power to perform. If not in Rust, at least in futsal!
