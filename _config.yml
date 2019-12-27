@@ -15,7 +15,9 @@ markdown: kramdown
 highlighter: rouge
 paginate: 5
 exclude: ["less","node_modules","Gruntfile.js","package.json","README.md"]
-plugins: [jekyll-paginate]
+plugins:
+  - jekyll-paginate
+  - jekyll-time-to-read
 
 kramdown:
   input: GFM
