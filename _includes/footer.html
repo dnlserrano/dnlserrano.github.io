@@ -76,7 +76,9 @@
                 {% if page.header-img-author-url %}
                     <p class="copyright text-muted">Photo by <a href="{{page.header-img-author-url}}">{{page.header-img-author-name}}</a></p>
                 {% else %}
+                  {% if page.header-img-author-name %}
                     <p class="copyright text-muted">Photo by {{page.header-img-author-name}}</p>
+                  {% endif %}
                 {% endif %}
                 <p class="copyright text-muted">Copyright &copy; {{ site.title }} {{ site.time | date: '%Y' }}</p>
             </div>
