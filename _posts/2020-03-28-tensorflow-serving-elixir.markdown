@@ -2,7 +2,7 @@
 layout:     post
 title:      "Tensorflow Serving in Elixir"
 subtitle:   "teaching Elixir how to guess hand-written digits"
-date:       2020-03-22 16:40:00
+date:       2020-03-28 14:00:00
 author:     "Daniel Serrano"
 header-img: "img/tensorflow-serving-elixir/cover.png"
 ---
