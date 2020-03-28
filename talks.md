@@ -8,6 +8,12 @@ header-img-author-name: Paulo Pereira
 header-img-author-url: "https://twitter.com/odesassossegado"
 ---
 
+### [Mutation Testing in Elixir](https://speakerdeck.com/dnlserrano/mutation-testing-in-elixir)
+
+In November of 2019 I gave a talk at the `Lisbon |> Elixir` meetup. We discussed mutation testing and the Elixir AST. 🦎
+
+<script async class="speakerdeck-embed" data-id="1401caa05e3b4213b82110e18db6e4df" data-ratio="1.77777777777778" src="https://speakerdeck.com/assets/embed.js"></script>
+
 ### [From Ruby to Elixir](https://speakerdeck.com/dnlserrano/from-ruby-to-elixir)
 
 In the summer of 2019 I gave a talk at the `sardines.rb` Lisbon Ruby meetup. They were nice enough to have me present about Elixir. 😊
