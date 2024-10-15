@@ -42,32 +42,22 @@
                         </a>
                     </li>
                     {% endif %}
-                    {% if site.soundcloud_username %}
-                    <li>
-                        <a href="https://soundcloud.com/{{ site.soundcloud_username }}">
-                            <span class="fa-stack fa-lg">
-                                <i class="fa fa-circle fa-stack-2x"></i>
-                                <i class="fa fa-soundcloud fa-stack-1x fa-inverse"></i>
-                            </span>
-                        </a>
-                    </li>
-                    {% endif %}
-                    {% if site.instagram_username %}
-                    <li>
-                        <a href="https://instagram.com/{{ site.instagram_username }}">
-                            <span class="fa-stack fa-lg">
-                                <i class="fa fa-circle fa-stack-2x"></i>
-                                <i class="fa fa-instagram fa-stack-1x fa-inverse"></i>
-                            </span>
-                        </a>
-                    </li>
-                    {% endif %}
                     {% if site.hackernews_username %}
                     <li>
                         <a href="https://news.ycombinator.com/user?id={{ site.hackernews_username }}">
                             <span class="fa-stack fa-lg">
                                 <i class="fa fa-circle fa-stack-2x"></i>
                                 <i class="fa fa-hacker-news fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if site.huggingface_username %}
+                    <li>
+                        <a href="https://huggingface.co/{{ site.huggingface_username }}">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-stack-1x fa-inverse" style="color: grey; filter: grayscale(100%);">🤗</i>
                             </span>
                         </a>
                     </li>
