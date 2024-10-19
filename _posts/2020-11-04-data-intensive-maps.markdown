@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      "Data Intensive Maps"
+title:      "Data Intensive maps"
 subtitle:   "an amusing cherry on top of a great book"
 date:       2020-11-04 23:50:00
 author:     "Daniel Serrano"

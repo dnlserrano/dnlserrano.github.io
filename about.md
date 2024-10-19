@@ -1,8 +1,7 @@
 ---
 layout: page
 visibility: visible
-title: "About"
-description: "who I am"
+title: "about"
 header-img: "img/about.jpg"
 header-img-author-name: Rui Nunes
 header-img-author-url: "https://www.flickr.com/photos/rui_gv_nunes/"
