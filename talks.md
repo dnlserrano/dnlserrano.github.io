@@ -1,8 +1,7 @@
 ---
 layout: page
 visibility: visible
-title: "Talks"
-description: "my talks in the wild"
+title: "talks"
 header-img: "img/talks.jpg"
 header-img-author-name: Paulo Pereira
 header-img-author-url: "https://twitter.com/odesassossegado"

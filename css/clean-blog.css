@@ -147,7 +147,7 @@ hr.small {
   .intro-header .site-heading,
   .intro-header .post-heading,
   .intro-header .page-heading {
-    padding: 150px 0;
+    padding: 50px 0;
   }
 }
 .intro-header .site-heading,
@@ -171,7 +171,7 @@ hr.small {
 @media only screen and (min-width: 768px) {
   .intro-header .site-heading h1,
   .intro-header .page-heading h1 {
-    font-size: 80px;
+    font-size: 20px;
   }
 }
 .intro-header .post-heading h1 {
@@ -352,7 +352,7 @@ form .row:first-child .floating-label-form-group {
 .pager li > a,
 .pager li > span {
   font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  text-transform: uppercase;
+  text-transform: lowercase;
   font-size: 14px;
   font-weight: 800;
   letter-spacing: 1px;
@@ -364,7 +364,7 @@ form .row:first-child .floating-label-form-group {
   .pager li > a,
   .pager li > span {
     font-size: 14px;
-    padding: 15px 25px;
+    padding: 5px 10px;
   }
 }
 .pager li > a:hover,
