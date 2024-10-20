@@ -19,7 +19,7 @@ header-img-author-url: "https://www.flickr.com/photos/meg_johnson/"
         </h3>
         {% endif %}
     </a>
-    <p class="post-meta">Posted by {{ post.author }} on {{ post.date | date: "%B %-d, %Y" }}</p>
+    <p class="post-meta">{{ post.date | date: "%B %-d, %Y" }}</p>
 </div>
 <hr>
 {% endfor %}
