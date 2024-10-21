@@ -5,8 +5,8 @@ subtitle:   "Viola-Jones as a predecessor to Hinton's AI revolution"
 date:       2024-10-20 00:00:00
 author:     "Daniel Serrano"
 header-img: "img/when-machines-could-see-you/cover.png"
-header-img-author-name: "Kharl Anthony Paica"
-header-img-author-url: "https://unsplash.com/@kharlpaica"
+header-img-author-name: "Fran Jacquier"
+header-img-author-url: "https://unsplash.com/@fran_"
 ---
 
 In 2024, [Geoffrey Hinton](https://en.wikipedia.org/wiki/Geoffrey_Hinton) was awarded the Nobel Prize for his contributions to artificial intelligence. A key milestone in his work came in 2012 with AlexNet, a neural network he developed with his students [Alex Krizhevsky](https://en.wikipedia.org/wiki/Alex_Krizhevsky) and [Ilya Sutskever](https://en.wikipedia.org/wiki/Ilya_Sutskever), sparking a revolution in AI. But more than a decade earlier, in 2001, [Paul Viola](https://en.wikipedia.org/wiki/Paul_Viola) and [Michael Jones](https://en.wikipedia.org/wiki/Michael_Jones_(scientist)) first gave machines the ability to see you in real-time.
