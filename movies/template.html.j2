@@ -1,0 +1,286 @@
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movies</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        var movieData = {{ movies | tojson }};
+    </script>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15vh auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 60%;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8 text-center">movies playing on tv – yesterday, today, tomorrow</h1>
+
+        <!-- New Filter Section -->
+        <div class="bg-gray-800 rounded-lg p-4 mb-6">
+            <h2 class="text-xl font-semibold">filters</h2>
+
+            <div id="filter-section" class="mt-4">
+                <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+                    <div class="space-y-2">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" id="great-movies-filter" class="form-checkbox text-blue-600">
+                            <span class="ml-2">great movies</span>
+                        </label>
+                        <label class="inline-flex items-center ml-2">
+                            <input type="checkbox" checked id="today-filter" class="form-checkbox text-blue-600">
+                            <span class="ml-2">today</span>
+                        </label>
+                    </div>
+
+                    <div class="flex items-end">
+                        <button onclick="applyFilters()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                          apply
+                        </button>
+                        <button onclick="resetFilters()" class="ml-2 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                          clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6" id="movie-grid">
+        </div>
+    </div>
+
+    <!-- Movie Modal (unchanged from previous version) -->
+    <div id="movie-modal" class="modal">
+        <div class="modal-content bg-gray-800 rounded-lg shadow-lg">
+            <span class="close-button float-right text-2xl font-bold text-gray-400 cursor-pointer">&times;</span>
+            <div class="md:flex">
+                <img id="modal-poster-url" src="" alt="" style="width: 240px; height: 330px; object-fit: cover;">
+                <div class="md:ml-6 mt-4 md:mt-0">
+                    <a href="#" id="modal-title-href">
+                        <h1 id="modal-title" class="text-3xl font-bold underline"></h1>
+                    </a>
+
+                    <p id="modal-original-title" class="text-gray-400"></p>
+
+                    <div class="mt-4 text-lg">
+                        <p id="modal-channel" class="text-gray-400"></p>
+                        <p id="modal-date" class="text-gray-400"></p>
+                        <p id="modal-time" class="text-gray-400"></p>
+
+                        <p class="mt-2">
+                            <span class="font-semibold">IMDB Rating:</span>
+                            <span id="modal-rating"></span>
+                        </p>
+
+                        <p class="mt-4" id="modal-plot"></p>
+
+                        <div class="mt-4">
+                            <p>
+                                <span class="font-semibold">Director:</span>
+                                <span id="modal-director"></span>
+                            </p>
+                        </div>
+
+                        <div class="mt-4">
+                            <p>
+                                <span class="font-semibold">Cast:</span>
+                                <span id="modal-cast"></span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+      function applyFilters() {
+        const movieGrid = document.getElementById('movie-grid');
+        const now = new Date();
+
+        // Get filter values
+        const isGreatMovies = document.getElementById('great-movies-filter').checked;
+        const isTodayMovies = document.getElementById('today-filter').checked;
+
+        // Filter movies
+        const filteredMovies = movieData.filter(movie => {
+          const movieDate = new Date(movie.time);
+
+          // Great Movies Filter
+          const meetsGreatMoviesFilter = !isGreatMovies || (parseFloat(movie.rating) > 7.5);
+
+          // Today's Movies Filter
+          const meetsTodayFilter = !isTodayMovies || (
+            movieDate.getDate() === now.getDate() &&
+            movieDate.getMonth() === now.getMonth() &&
+            movieDate.getFullYear() === now.getFullYear()
+          );
+
+          // Combine all filters
+          return meetsGreatMoviesFilter && meetsTodayFilter;
+        }).sort((a, b) => {
+          return new Date(a.time) - new Date(b.time);
+        });
+
+        // Remove duplicate movies
+        const uniqueMovies = [];
+        const seenTitles = new Set();
+        filteredMovies.forEach(movie => {
+          if (!seenTitles.has(movie.title)) {
+            seenTitles.add(movie.title);
+            uniqueMovies.push(movie);
+          }
+        });
+
+        // Render filtered movies
+        movieGrid.innerHTML = '';
+        uniqueMovies.forEach(movie => {
+          const movieElement = document.createElement('div');
+          movieElement.className = 'bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer transform hover:scale-105 transition-transform duration-200';
+          movieElement.innerHTML = `
+            <a onclick="showMovieDetails('${movie.id}')">
+              <img src="${cleanUrl(movie.poster_url)}" alt="${movie.title}" class="w-full h-96 object-cover">
+              <div class="p-4">
+                <h2 class="text-xl font-semibold">${movie.title}</h2>
+                <div class="mt-2 text-gray-400">
+                  <p>${movie.channel}</p>
+                  <p>${movie.date}</p>
+                  <p>${movie.time_display}</p>
+                </div>
+              </div>
+            </a>
+          `;
+          movieGrid.appendChild(movieElement);
+        });
+      }
+
+      function resetFilters() {
+        document.getElementById('great-movies-filter').checked = false;
+        document.getElementById('today-filter').checked = false;
+        applyFilters();
+      }
+
+      function renderMovies() {
+        const movieGrid = document.getElementById('movie-grid');
+        const now = new Date();
+
+        // Filter out past movies and sort by scheduled time
+        const futureMovies = movieData.filter(movie => {
+          return new Date(movie.time) > now;
+        }).sort((a, b) => {
+          return new Date(a.time) - new Date(b.time);
+        });
+
+        // Remove duplicate movies
+        const uniqueMovies = [];
+        const seenTitles = new Set();
+        futureMovies.forEach(movie => {
+          if (!seenTitles.has(movie.title)) {
+            seenTitles.add(movie.title);
+            uniqueMovies.push(movie);
+          }
+        });
+
+        // Render movies
+        movieGrid.innerHTML = '';
+        uniqueMovies.forEach(movie => {
+          const movieElement = document.createElement('div');
+          movieElement.className = 'bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer transform hover:scale-105 transition-transform duration-200';
+          movieElement.innerHTML = `
+            <a onclick="showMovieDetails('${movie.id}')">
+              <img src="${cleanUrl(movie.poster_url)}" alt="${movie.title}" class="w-full h-96 object-cover">
+              <div class="p-4">
+                <h2 class="text-xl font-semibold">${movie.title}</h2>
+                <div class="mt-2 text-gray-400">
+                  <p>${movie.channel}</p>
+                  <p>${movie.date}</p>
+                  <p>${movie.time_display}</p>
+                </div>
+              </div>
+            </a>
+          `;
+          movieGrid.appendChild(movieElement);
+        });
+      }
+
+      function showMovieDetails(movieId) {
+        const movie = movieData.find(m => m.id === movieId);
+        const modal = document.getElementById("movie-modal");
+        const closeButton = document.getElementsByClassName("close-button")[0];
+
+        document.getElementById("modal-poster-url").src = cleanUrl(movie.poster_url);
+
+        if (isNaN(movie.year)) {
+          document.getElementById("modal-title").textContent = movie.title;
+        } else {
+          document.getElementById("modal-title").textContent = `${movie.title} (${movie.year})`;
+        }
+
+        document.getElementById("modal-title-href").setAttribute("href", `https://imdb.com/title/${movie.id}/`);
+        document.getElementById("modal-original-title").textContent = movie.originalTitle;
+        document.getElementById("modal-channel").textContent = movie.channel;
+        document.getElementById("modal-date").textContent = movie.date;
+        document.getElementById("modal-time").textContent = movie.time_display;
+        document.getElementById("modal-rating").textContent = movie.rating;
+        document.getElementById("modal-plot").textContent = movie.plot;
+        document.getElementById("modal-director").textContent = movie.director.join(', ');
+
+        if (movie.cast) {
+          document.getElementById("modal-cast").textContent = movie.cast.join(', ');
+        }
+
+        modal.style.display = "block";
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+          if (event.key === 'Escape' && modal.style.display === "block") {
+            modal.style.display = "none";
+          }
+        });
+
+        closeButton.onclick = function() {
+          modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+          if (event.target == modal) {
+            modal.style.display = "none";
+          }
+        }
+      }
+
+      function cleanUrl(url) {
+        if (!url) {
+          return 'movies/poster.webp';
+        }
+
+        const parts = url.split('.');
+        const extension = parts.pop();
+        const base = url.split('@')[0];
+
+        var count = (url.match(/@/g) || []).length;
+        if (count > 0) { count -= 1; }
+
+        return `${base}@${'@'.repeat(count)}._V1_SY400.${extension}`;
+      }
+
+      applyFilters();
+    </script>
+</body>
+</html>
