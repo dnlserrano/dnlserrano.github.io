@@ -1,0 +1,24 @@
+name: Movies
+
+on:
+  schedule:
+    - cron: "0 0 * * */1"
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Generate movies page
+      run: |
+        cd movies
+        sh run.sh
+    - name: Commit updated page
+      run: |
+        git config --global user.name 'Movies bot'
+        git config --global user.email 'danieljdserrano+movies-bot@gmail.com'
+        git add _includes/movies.html
+        git commit -am "Update movies page"
+        git push
