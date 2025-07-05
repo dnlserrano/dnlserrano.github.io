@@ -6,8 +6,8 @@ import requests
 from datetime import datetime, timedelta
 
 import duckdb
-import imdb
 import jinja2
+import movieposters as mp
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +57,9 @@ def fetch_movie_data():
     con = duckdb.connect()
     con.execute("CREATE TABLE title_akas AS SELECT * FROM read_csv('title.akas.tsv', delim='\t', ignore_errors=true)")
     con.execute("CREATE TABLE title_basics AS SELECT * FROM read_csv('title.basics.tsv', delim='\t', ignore_errors=true)")
+    con.execute("CREATE TABLE title_crew AS SELECT * FROM read_csv('title.crew.tsv', delim='\t', ignore_errors=true)")
+    con.execute("CREATE TABLE title_ratings AS SELECT * FROM read_csv('title.ratings.tsv', delim='\t', ignore_errors=true)")
+    con.execute("CREATE TABLE name_basics AS SELECT * FROM read_csv('name.basics.tsv', delim='\t', ignore_errors=true)")
 
     movies = []
     programs = []
@@ -74,16 +77,20 @@ def fetch_movie_data():
             finish = program['timeEnd']
             logger.debug(f"analysing {channel_name} {title} {date} {start} {finish}")
 
-            query = f"""
+            query = """
                 SELECT
                     tb.tconst,
                     tb.originalTitle,
                     tb.startYear,
-                    tb.genres
+                    tb.genres,
+                    tr.averageRating,
+                    tc.directors,
+                    tc.writers
                 FROM title_akas ta
                 JOIN title_basics tb ON ta.titleId = tb.tconst
+                JOIN title_crew tc ON ta.titleId = tc.tconst
+                JOIN title_ratings tr ON ta.titleId = tr.tconst
                 WHERE ta.title = ?
-                AND (ta.region = 'PT' OR ta.region = 'US')
                 AND tb.titleType = 'movie'
                 LIMIT 1;
             """
@@ -91,31 +98,27 @@ def fetch_movie_data():
             try:
                 movie_db = con.execute(query, [title]).fetchone()
                 if movie_db:
+                    imdb_id = movie_db[0]
+                    director_ids = movie_db[5].split(',') if movie_db[5] else []
+                    writers = movie_db[6].split(',') if movie_db[6] else []
+
+                    # Query all director names in one go
+                    if director_ids:
+                        placeholders = ','.join(['?'] * len(director_ids))
+                        director_query = f"SELECT primaryName FROM name_basics WHERE nconst IN ({placeholders})"
+                        director_names = [row[0] for row in con.execute(director_query, director_ids).fetchall()]
+                    else:
+                        director_names = []
+
+                    poster_url = ''
                     try:
-                        access = imdb.IMDb()
-                        movie = access.get_movie(int(movie_db[0][2:]))
+                        poster_url = mp.get_poster(id=imdb_id)
+                    except Exception as e:
+                        logger.debug(f"error fetching poster: {e}")
+                    logger.debug(poster_url)
 
-                        # poster
-                        poster_url = movie['cover url']
-
-                        # rating
-                        rating = movie['rating']
-
-                        # cast
-                        cast = [actor for actor in map(lambda actor: actor['name'], movie['cast'])]
-                        cast.sort()
-                        cast = cast[0:10]
-
-                        # director
-                        director = [d['name'] for d in movie['director']]
-                    except:
-                        poster_url = ""
-                        rating = None
-                        cast = None
-
-                    logger.debug(f"found match for {title} :: {movie_db[1]}")
                     movie = {
-                        'id': movie_db[0],
+                        'id': imdb_id,
                         'title': movie_db[1],
                         'year': movie_db[2],
                         'poster_url': poster_url,
@@ -124,14 +127,16 @@ def fetch_movie_data():
                         'time_display': f"{start} - {finish}",
                         'date': date,
                         'genres': movie_db[3].split(','),
-                        'rating': rating,
-                        'cast': cast,
-                        'director': director,
+                        'rating': movie_db[4],
+                        'director': director_names,
+                        'writer': writers,
                     }
                     movies.append(movie)
                     logger.debug(f"found info to add {title}")
-            except:
-                logger.debug(f"error processing {title}")
+                else:
+                    logger.debug(f"no match found for {title}")
+            except Exception as e:
+                logger.debug(f"error processing {title}: {e}")
 
     with open(MOVIES_FILE, 'w') as f:
         json.dump(movies, f)
@@ -142,4 +147,6 @@ templateLoader = jinja2.FileSystemLoader(searchpath="./")
 templateEnv = jinja2.Environment(loader=templateLoader)
 template = templateEnv.get_template(TEMPLATE_FILE)
 
-print(template.render(movies=fetch_movie_data()))
+if __name__ == "__main__":
+    html = template.render(movies=fetch_movie_data())
+    print(html)

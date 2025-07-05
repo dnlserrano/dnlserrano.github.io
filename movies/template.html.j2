@@ -96,13 +96,6 @@
                                 <span id="modal-director"></span>
                             </p>
                         </div>
-
-                        <div class="mt-4">
-                            <p>
-                                <span class="font-semibold">Cast:</span>
-                                <span id="modal-cast"></span>
-                            </p>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -233,16 +226,15 @@
         }
 
         document.getElementById("modal-title-href").setAttribute("href", `https://imdb.com/title/${movie.id}/`);
-        document.getElementById("modal-original-title").textContent = movie.originalTitle;
-        document.getElementById("modal-channel").textContent = movie.channel;
-        document.getElementById("modal-date").textContent = movie.date;
-        document.getElementById("modal-time").textContent = movie.time_display;
-        document.getElementById("modal-rating").textContent = movie.rating;
-        document.getElementById("modal-plot").textContent = movie.plot;
-        document.getElementById("modal-director").textContent = movie.director.join(', ');
-
-        if (movie.cast) {
-          document.getElementById("modal-cast").textContent = movie.cast.join(', ');
+        document.getElementById("modal-original-title").textContent = movie.originalTitle || '';
+        document.getElementById("modal-channel").textContent = movie.channel || '';
+        document.getElementById("modal-date").textContent = movie.date || '';
+        document.getElementById("modal-time").textContent = movie.time_display || '';
+        document.getElementById("modal-rating").textContent = movie.averageRating || movie.rating || '';
+        if (Array.isArray(movie.director)) {
+          document.getElementById("modal-director").textContent = movie.director.join(', ');
+        } else {
+          document.getElementById("modal-director").textContent = movie.director || 'N/A';
         }
 
         modal.style.display = "block";
@@ -266,18 +258,49 @@
       }
 
       function cleanUrl(url) {
-        if (!url) {
-          return 'movies/poster.webp';
+        if (!url || typeof url !== 'string') {
+          return './poster.webp'; // Default placeholder
         }
 
-        const parts = url.split('.');
-        const extension = parts.pop();
-        const base = url.split('@')[0];
+        // Check if the URL is already a "clean" Amazon URL with size parameters
+        // e.g., https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_SY400.jpg
+        // or      https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_UX182_CR0,0,182,268_AL_.jpg
+        // We want to replace the part after ._V1_ up to the extension.
 
-        var count = (url.match(/@/g) || []).length;
-        if (count > 0) { count -= 1; }
+        const imdbPattern = /^(.*)(\._V1_)(.*)(\.[^.]+)$/;
+        const match = url.match(imdbPattern);
 
-        return `${base}@${'@'.repeat(count)}._V1_SY400.${extension}`;
+        if (match) {
+          // We have a typical IMDB URL. Reconstruct it with SY400 (height 400px).
+          // match[1] is the base part of the URL
+          // match[4] is the extension (e.g., .jpg)
+          return `${match[1]}._V1_SY400${match[4]}`;
+        } else {
+          // It's not a standard IMDB URL we know how to resize, or it's already processed.
+          // It might be a URL that doesn't have the _V1_ part, or from a different source.
+          // Or it's a URL that has been processed by an older version of this function (e.g. has @@).
+          // Fallback: try to return it as is, but if it contains '@@', it's likely from an old format.
+          // In that specific '@@' case, try a simpler split, assuming the old format.
+          if (url.includes('@@')) {
+              const parts = url.split('@@');
+              const base = parts[0];
+              const extParts = url.split('.');
+              const extension = extParts.pop();
+              if (base && extension) {
+                  return `${base}@@._V1_SY400.${extension}`; // Attempt to fix older format
+              }
+          }
+          // If no specific IMDB pattern is matched, and no '@@' is found, return the URL as is.
+          // This handles cases where the URL might not be an IMDB one or is already correctly formatted.
+          // It also handles cases where the placeholder './poster.webp' might be passed unintentionally.
+          if (url === './poster.webp') return url;
+
+          // As a last resort for non-empty URLs that don't match, we'll try to append a generic resize parameter
+          // This is a bit of a guess, but better than truncating.
+          // However, it's safer to return it as is if we're unsure.
+          // For now, let's return as is if no specific pattern is matched.
+          return url;
+        }
       }
 
       applyFilters();
