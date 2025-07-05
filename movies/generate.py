@@ -112,6 +112,7 @@ def fetch_movie_data():
                         poster_url = ""
                         rating = None
                         cast = None
+                        director = None
 
                     logger.debug(f"found match for {title} :: {movie_db[1]}")
                     movie = {
@@ -130,8 +131,10 @@ def fetch_movie_data():
                     }
                     movies.append(movie)
                     logger.debug(f"found info to add {title}")
-            except:
-                logger.debug(f"error processing {title}")
+                else:
+                    logger.debug(f"no match found for {title}")
+            except Exception as e:
+                logger.debug(f"error processing {title}: {e}")
 
     with open(MOVIES_FILE, 'w') as f:
         json.dump(movies, f)

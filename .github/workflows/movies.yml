@@ -20,5 +20,15 @@ jobs:
         git config --global user.name 'Movies bot'
         git config --global user.email 'danieljdserrano+movies-bot@gmail.com'
         git add _includes/movies.html
-        git commit -am "Update movies page"
-        git push
+        if git diff --cached --quiet; then
+          echo "No changes to commit."
+        else
+          last_msg=$(git log -1 --pretty=%B)
+          if [ "$last_msg" = "Update movies page" ]; then
+            git commit --amend --no-edit
+            git push --force  # don't do this at home
+          else
+            git commit -m "Update movies page"
+            git push
+          fi
+        fi
