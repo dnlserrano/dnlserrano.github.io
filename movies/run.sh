@@ -1,13 +1,12 @@
 #!/bin/bash
 
-wget https://datasets.imdbws.com/title.basics.tsv.gz
-gzip -d title.basics.tsv.gz
-
-wget https://datasets.imdbws.com/title.akas.tsv.gz
-gzip -d title.akas.tsv.gz | gzip -d
+for file in title.basics.tsv.gz title.akas.tsv.gz title.crew.tsv.gz title.ratings.tsv.gz name.basics.tsv.gz; do
+    wget https://datasets.imdbws.com/$file
+    gzip -d $file
+done
 
 pip install duckdb
-pip install IMDbPY
 pip install jinja2
+pip install movieposters
 
 python generate.py > ../_includes/movies.html
