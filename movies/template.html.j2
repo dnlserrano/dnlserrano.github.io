@@ -6,6 +6,28 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         var movieData = {{ movies | tojson }};
+
+        // i18n translations
+        const translations = {
+            'en': {
+                'title': 'movies playing on tv – yesterday, today, tomorrow',
+                'greatMovies': 'great movies',
+                'greatMoviesTooltip': 'Movies rated above 7.5 stars',
+                'today': 'today',
+                'reset': 'reset'
+            },
+            'pt': {
+                'title': 'filmes a passar na tv – ontem, hoje, amanhã',
+                'greatMovies': 'grandes filmes',
+                'greatMoviesTooltip': 'Filmes com avaliação acima de 7.5 estrelas',
+                'today': 'hoje',
+                'reset': 'repor'
+            }
+        };
+
+        // Detect user language
+        const userLang = (navigator.language || navigator.userLanguage).split('-')[0];
+        const lang = translations[userLang] || translations['en'];
     </script>
     <style>
         .modal {
@@ -30,31 +52,25 @@
 </head>
 <body class="bg-gray-900 text-white">
     <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold mb-8 text-center">movies playing on tv – yesterday, today, tomorrow</h1>
+        <h1 id="page-title" class="text-3xl font-bold mb-8 text-center"></h1>
 
-        <!-- New Filter Section -->
+        <!-- Filter Section -->
         <div class="bg-gray-800 rounded-lg p-4 mb-6">
-            <h2 class="text-xl font-semibold">filters</h2>
-
             <div id="filter-section" class="mt-4">
                 <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
                     <div class="space-y-2">
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" id="great-movies-filter" class="form-checkbox text-blue-600">
-                            <span class="ml-2">great movies</span>
+                        <label class="inline-flex items-center" title="">
+                            <input type="checkbox" checked id="great-movies-filter" class="form-checkbox text-blue-600" onchange="applyFilters()">
+                            <span id="great-movies-label" class="ml-2 cursor-help"></span>
                         </label>
                         <label class="inline-flex items-center ml-2">
-                            <input type="checkbox" checked id="today-filter" class="form-checkbox text-blue-600">
-                            <span class="ml-2">today</span>
+                            <input type="checkbox" checked id="today-filter" class="form-checkbox text-blue-600" onchange="applyFilters()">
+                            <span id="today-label" class="ml-2"></span>
                         </label>
                     </div>
 
                     <div class="flex items-end">
-                        <button onclick="applyFilters()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                          apply
-                        </button>
-                        <button onclick="resetFilters()" class="ml-2 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                          clear
+                        <button onclick="resetFilters()" id="reset-button" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
                         </button>
                     </div>
                 </div>
@@ -164,8 +180,20 @@
       }
 
       function resetFilters() {
-        document.getElementById('great-movies-filter').checked = false;
-        document.getElementById('today-filter').checked = false;
+        document.getElementById('great-movies-filter').checked = true;
+        document.getElementById('today-filter').checked = true;
+        applyFilters();
+      }
+
+      function initializeUI() {
+        // Set translated text
+        document.getElementById('page-title').textContent = lang.title;
+        document.getElementById('great-movies-label').textContent = lang.greatMovies;
+        document.getElementById('great-movies-label').parentElement.title = lang.greatMoviesTooltip;
+        document.getElementById('today-label').textContent = lang.today;
+        document.getElementById('reset-button').textContent = lang.reset;
+
+        // Apply filters on page load
         applyFilters();
       }
 
@@ -304,7 +332,8 @@
         }
       }
 
-      applyFilters();
+      // Initialize UI and apply filters on page load
+      window.addEventListener('DOMContentLoaded', initializeUI);
     </script>
 </body>
 </html>
