@@ -1,6 +1,97 @@
-_site
-.sass-cache
-ideas.txt
+# ============================================
+# Jekyll
+# ============================================
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+
+# ============================================
+# Ruby / Bundler
+# ============================================
+.bundle/
+vendor/
+Gemfile.lock
+
+# ============================================
+# Node / NPM / Grunt
+# ============================================
+node_modules/
+npm-debug.log
+package-lock.json
+.grunt/
+
+# ============================================
+# Movies Subproject
+# ============================================
+# IMDB datasets (large TSV files)
 movies/*.tsv
+movies/title.*.tsv
+
+# Generated/cached data
 movies/*.json
+movies/imdb_cache.json
+movies/moviesthisweek.json
+
+# Generated HTML
 _includes/movies.html
+
+# Movies build artifacts
+movies/_site/
+movies/*.pyc
+movies/__pycache__/
+
+# ============================================
+# General Development
+# ============================================
+# Personal notes and ideas
+ideas.txt
+notes.txt
+TODO.txt
+.todo
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+# OS-specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.settings/
+
+# Python (for movies/generate.py)
+*.pyc
+__pycache__/
+.python-version
+venv/
+env/
+.env
+
+# Logs
+*.log
+logs/
+
+# ============================================
+# Build outputs
+# ============================================
+dist/
+build/
+*.min.js.map
+*.min.css.map
