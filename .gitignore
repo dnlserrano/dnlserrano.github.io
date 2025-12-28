@@ -1,3 +1,6 @@
 _site
 .sass-cache
 ideas.txt
+movies/*.tsv
+movies/*.json
+_includes/movies.html
