@@ -1,7 +1,7 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>Movies</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -10,18 +10,18 @@
         // i18n translations
         const translations = {
             'en': {
-                'title': 'movies playing on tv – yesterday, today, tomorrow',
-                'greatMovies': 'great movies',
+                'title': 'movies on tv',
+                'greatMovies': 'great',
                 'greatMoviesTooltip': 'Movies rated above 7.5 stars',
                 'today': 'today',
                 'reset': 'reset'
             },
             'pt': {
-                'title': 'filmes a passar na tv – ontem, hoje, amanhã',
-                'greatMovies': 'grandes filmes',
+                'title': 'filmes na tv',
+                'greatMovies': 'melhores',
                 'greatMoviesTooltip': 'Filmes com avaliação acima de 7.5 estrelas',
                 'today': 'hoje',
-                'reset': 'repor'
+                'reset': 'reset'
             }
         };
 
@@ -30,88 +30,148 @@
         const lang = translations[userLang] || translations['en'];
     </script>
     <style>
+        /* Mobile-first modal */
         .modal {
             display: none;
             position: fixed;
             z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.4);
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.95);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .modal-content {
-            background-color: #fefefe;
-            margin: 15vh auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 60%;
+            background-color: #1f2937;
+            color: white;
+            padding: 8px;
+            width: 100%;
+            font-size: 13px;
+            position: relative;
+        }
+
+        .modal-content img {
+            width: 100%;
+            max-width: 140px;
+            height: auto;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .modal-content h2 {
+            font-size: 1rem;
+            line-height: 1.3;
+        }
+
+        .modal-content .space-y-2 > * {
+            margin-top: 0.4rem;
+        }
+
+        .modal-content .space-y-2 > *:first-child {
+            margin-top: 0;
+        }
+
+        /* Desktop enhancements */
+        @media (min-width: 768px) {
+            .modal-content {
+                margin: 30px auto;
+                padding: 20px;
+                width: 80%;
+                max-width: 700px;
+                border-radius: 8px;
+                font-size: 15px;
+                display: flex;
+                gap: 20px;
+            }
+
+            .modal-content img {
+                max-width: 200px;
+                margin: 0;
+                flex-shrink: 0;
+            }
+
+            .modal-content h2 {
+                font-size: 1.4rem;
+                line-height: 1.3;
+            }
+
+            .modal-content .clear-both {
+                display: flex;
+                gap: 20px;
+                width: 100%;
+            }
+
+            .modal-content .text-xs {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Smooth transitions */
+        * {
+            -webkit-tap-highlight-color: transparent;
         }
     </style>
 </head>
 <body class="bg-gray-900 text-white">
-    <div class="container mx-auto px-4 py-8">
-        <h1 id="page-title" class="text-3xl font-bold mb-8 text-center"></h1>
+    <!-- Mobile-first container -->
+    <div class="min-h-screen">
+        <!-- Compact header -->
+        <header class="sticky top-0 bg-gray-900 z-50 border-b border-gray-800">
+            <h1 id="page-title" class="text-lg font-bold py-3 px-3 text-center md:text-2xl md:py-4"></h1>
+        </header>
 
-        <!-- Filter Section -->
-        <div class="bg-gray-800 rounded-lg p-4 mb-6">
-            <div id="filter-section" class="mt-4">
-                <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
-                    <div class="space-y-2">
-                        <label class="inline-flex items-center" title="">
-                            <input type="checkbox" checked id="great-movies-filter" class="form-checkbox text-blue-600" onchange="applyFilters()">
-                            <span id="great-movies-label" class="ml-2 cursor-help"></span>
-                        </label>
-                        <label class="inline-flex items-center ml-2">
-                            <input type="checkbox" checked id="today-filter" class="form-checkbox text-blue-600" onchange="applyFilters()">
-                            <span id="today-label" class="ml-2"></span>
-                        </label>
-                    </div>
-
-                    <div class="flex items-end">
-                        <button onclick="resetFilters()" id="reset-button" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                        </button>
-                    </div>
-                </div>
+        <!-- Simple filter bar -->
+        <div class="bg-gray-800 border-b border-gray-700 px-3 py-2">
+            <div class="flex items-center gap-4 flex-wrap">
+                <label class="flex items-center gap-2 cursor-pointer" title="">
+                    <input type="checkbox" checked id="great-movies-filter" class="w-5 h-5 rounded" onchange="applyFilters()">
+                    <span id="great-movies-label" class="text-sm"></span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" checked id="today-filter" class="w-5 h-5 rounded" onchange="applyFilters()">
+                    <span id="today-label" class="text-sm"></span>
+                </label>
+                <button onclick="resetFilters()" id="reset-button" class="ml-auto bg-gray-700 px-3 py-1.5 rounded text-sm font-medium active:bg-gray-600">
+                </button>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6" id="movie-grid">
+        <!-- Movie grid: mobile-first -->
+        <div class="grid grid-cols-2 gap-2 p-2 md:grid-cols-4 md:gap-3 md:p-4 lg:grid-cols-6 lg:gap-4" id="movie-grid">
         </div>
     </div>
 
-    <!-- Movie Modal (unchanged from previous version) -->
+    <!-- Mobile-optimized modal -->
     <div id="movie-modal" class="modal">
-        <div class="modal-content bg-gray-800 rounded-lg shadow-lg">
-            <span class="close-button float-right text-2xl font-bold text-gray-400 cursor-pointer">&times;</span>
-            <div class="md:flex">
-                <img id="modal-poster-url" src="" alt="" style="width: 240px; height: 330px; object-fit: cover;" onerror="this.src='/movies/poster.webp'">
-                <div class="md:ml-6 mt-4 md:mt-0">
-                    <a href="#" id="modal-title-href">
-                        <h1 id="modal-title" class="text-3xl font-bold underline"></h1>
+        <div class="modal-content">
+            <button class="absolute top-2 right-2 text-2xl leading-none text-gray-400 z-10" onclick="document.getElementById('movie-modal').style.display='none'">&times;</button>
+
+            <div class="clear-both md:clear-none">
+                <img id="modal-poster-url" src="" alt="" class="mb-2 md:mb-0" onerror="this.src='/movies/poster.webp'">
+
+                <div class="md:flex-1">
+                    <a href="#" id="modal-title-href" target="_blank">
+                        <h2 id="modal-title" class="font-bold mb-1 underline md:mb-2"></h2>
                     </a>
 
-                    <p id="modal-original-title" class="text-gray-400"></p>
+                    <p id="modal-original-title" class="text-xs text-gray-400 mb-2 md:text-sm"></p>
 
-                    <div class="mt-4 text-lg">
-                        <p id="modal-channel" class="text-gray-400"></p>
-                        <p id="modal-date" class="text-gray-400"></p>
-                        <p id="modal-time" class="text-gray-400"></p>
+                    <div class="space-y-2 text-xs md:space-y-3">
+                        <p id="modal-channel" class="text-gray-300"></p>
+                        <p id="modal-date" class="text-gray-300"></p>
+                        <p id="modal-time" class="text-gray-300"></p>
 
-                        <p class="mt-2">
-                            <span class="font-semibold">IMDB Rating:</span>
-                            <span id="modal-rating"></span>
+                        <p class="pt-1 md:pt-2">
+                            <span class="font-semibold">Rating:</span>
+                            <span id="modal-rating" class="text-yellow-400"></span>
                         </p>
 
-                        <p class="mt-4" id="modal-plot"></p>
+                        <p id="modal-plot" class="pt-2 leading-snug md:pt-3 md:leading-relaxed text-gray-200"></p>
 
-                        <div class="mt-4">
-                            <p>
-                                <span class="font-semibold">Director:</span>
-                                <span id="modal-director"></span>
-                            </p>
-                        </div>
+                        <p class="pt-1 md:pt-2">
+                            <span class="font-semibold">Director:</span>
+                            <span id="modal-director" class="text-gray-300"></span>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -119,35 +179,25 @@
     </div>
 
     <script>
+      // Mobile-first: Render movie cards
       function applyFilters() {
         const movieGrid = document.getElementById('movie-grid');
         const now = new Date();
 
-        // Get filter values
         const isGreatMovies = document.getElementById('great-movies-filter').checked;
         const isTodayMovies = document.getElementById('today-filter').checked;
 
-        // Filter movies
         const filteredMovies = movieData.filter(movie => {
           const movieDate = new Date(movie.time);
-
-          // Great Movies Filter
           const meetsGreatMoviesFilter = !isGreatMovies || (parseFloat(movie.rating) > 7.5);
-
-          // Today's Movies Filter
           const meetsTodayFilter = !isTodayMovies || (
             movieDate.getDate() === now.getDate() &&
             movieDate.getMonth() === now.getMonth() &&
             movieDate.getFullYear() === now.getFullYear()
           );
-
-          // Combine all filters
           return meetsGreatMoviesFilter && meetsTodayFilter;
-        }).sort((a, b) => {
-          return new Date(a.time) - new Date(b.time);
-        });
+        }).sort((a, b) => new Date(a.time) - new Date(b.time));
 
-        // Remove duplicate movies
         const uniqueMovies = [];
         const seenTitles = new Set();
         filteredMovies.forEach(movie => {
@@ -157,25 +207,24 @@
           }
         });
 
-        // Render filtered movies
+        // Mobile-first card rendering
         movieGrid.innerHTML = '';
         uniqueMovies.forEach(movie => {
-          const movieElement = document.createElement('div');
-          movieElement.className = 'bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer transform hover:scale-105 transition-transform duration-200';
-          movieElement.innerHTML = `
-            <a onclick="showMovieDetails('${movie.id}')">
-              <img src="${cleanUrl(movie.poster_url)}" alt="${movie.title}" class="w-full h-96 object-cover" onerror="this.src='/movies/poster.webp'">
-              <div class="p-4">
-                <h2 class="text-xl font-semibold">${movie.title}</h2>
-                <div class="mt-2 text-gray-400">
-                  <p>${movie.channel}</p>
-                  <p>${movie.date}</p>
-                  <p>${movie.time_display}</p>
-                </div>
+          const card = document.createElement('div');
+          card.className = 'bg-gray-800 rounded overflow-hidden active:opacity-75 transition-opacity';
+          card.innerHTML = `
+            <div onclick="showMovieDetails('${movie.id}')" class="cursor-pointer">
+              <img src="${cleanUrl(movie.poster_url)}" alt="${movie.title}"
+                   class="w-full aspect-[2/3] object-cover"
+                   onerror="this.src='/movies/poster.webp'">
+              <div class="p-2">
+                <h3 class="text-xs font-semibold leading-tight line-clamp-2 mb-1 md:text-sm">${movie.title}</h3>
+                <p class="text-[10px] text-gray-400 truncate md:text-xs">${movie.channel}</p>
+                <p class="text-[10px] text-gray-500 md:text-xs">${movie.time_display}</p>
               </div>
-            </a>
+            </div>
           `;
-          movieGrid.appendChild(movieElement);
+          movieGrid.appendChild(card);
         });
       }
 
@@ -186,153 +235,74 @@
       }
 
       function initializeUI() {
-        // Set translated text
         document.getElementById('page-title').textContent = lang.title;
         document.getElementById('great-movies-label').textContent = lang.greatMovies;
         document.getElementById('great-movies-label').parentElement.title = lang.greatMoviesTooltip;
         document.getElementById('today-label').textContent = lang.today;
         document.getElementById('reset-button').textContent = lang.reset;
-
-        // Apply filters on page load
         applyFilters();
-      }
-
-      function renderMovies() {
-        const movieGrid = document.getElementById('movie-grid');
-        const now = new Date();
-
-        // Filter out past movies and sort by scheduled time
-        const futureMovies = movieData.filter(movie => {
-          return new Date(movie.time) > now;
-        }).sort((a, b) => {
-          return new Date(a.time) - new Date(b.time);
-        });
-
-        // Remove duplicate movies
-        const uniqueMovies = [];
-        const seenTitles = new Set();
-        futureMovies.forEach(movie => {
-          if (!seenTitles.has(movie.title)) {
-            seenTitles.add(movie.title);
-            uniqueMovies.push(movie);
-          }
-        });
-
-        // Render movies
-        movieGrid.innerHTML = '';
-        uniqueMovies.forEach(movie => {
-          const movieElement = document.createElement('div');
-          movieElement.className = 'bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer transform hover:scale-105 transition-transform duration-200';
-          movieElement.innerHTML = `
-            <a onclick="showMovieDetails('${movie.id}')">
-              <img src="${cleanUrl(movie.poster_url)}" alt="${movie.title}" class="w-full h-96 object-cover" onerror="this.src='/movies/poster.webp'">
-              <div class="p-4">
-                <h2 class="text-xl font-semibold">${movie.title}</h2>
-                <div class="mt-2 text-gray-400">
-                  <p>${movie.channel}</p>
-                  <p>${movie.date}</p>
-                  <p>${movie.time_display}</p>
-                </div>
-              </div>
-            </a>
-          `;
-          movieGrid.appendChild(movieElement);
-        });
       }
 
       function showMovieDetails(movieId) {
         const movie = movieData.find(m => m.id === movieId);
         const modal = document.getElementById("movie-modal");
-        const closeButton = document.getElementsByClassName("close-button")[0];
 
         document.getElementById("modal-poster-url").src = cleanUrl(movie.poster_url);
-
-        if (isNaN(movie.year)) {
-          document.getElementById("modal-title").textContent = movie.title;
-        } else {
-          document.getElementById("modal-title").textContent = `${movie.title} (${movie.year})`;
-        }
-
+        document.getElementById("modal-title").textContent = movie.year && !isNaN(movie.year)
+          ? `${movie.title} (${movie.year})`
+          : movie.title;
         document.getElementById("modal-title-href").setAttribute("href", `https://imdb.com/title/${movie.id}/`);
         document.getElementById("modal-original-title").textContent = movie.originalTitle || '';
         document.getElementById("modal-channel").textContent = movie.channel || '';
         document.getElementById("modal-date").textContent = movie.date || '';
         document.getElementById("modal-time").textContent = movie.time_display || '';
-        document.getElementById("modal-rating").textContent = movie.averageRating || movie.rating || '';
+        document.getElementById("modal-rating").textContent = movie.averageRating || movie.rating || 'N/A';
         document.getElementById("modal-plot").textContent = movie.plot || '';
-        if (Array.isArray(movie.director)) {
-          document.getElementById("modal-director").textContent = movie.director.join(', ');
-        } else {
-          document.getElementById("modal-director").textContent = movie.director || 'N/A';
-        }
+        document.getElementById("modal-director").textContent = Array.isArray(movie.director)
+          ? movie.director.join(', ')
+          : (movie.director || 'N/A');
 
         modal.style.display = "block";
+        setTimeout(() => modal.scrollTop = 0, 0); // Reset scroll position
 
-        // Close modal with Escape key
-        document.addEventListener('keydown', function(event) {
-          if (event.key === 'Escape' && modal.style.display === "block") {
-            modal.style.display = "none";
+        // Close handlers
+        const closeModal = () => {
+          modal.style.display = "none";
+        };
+
+        document.addEventListener('keydown', function escHandler(e) {
+          if (e.key === 'Escape') {
+            closeModal();
+            document.removeEventListener('keydown', escHandler);
           }
         });
 
-        closeButton.onclick = function() {
-          modal.style.display = "none";
-        }
-
-        window.onclick = function(event) {
-          if (event.target == modal) {
-            modal.style.display = "none";
-          }
-        }
+        modal.onclick = function(e) {
+          if (e.target === modal) closeModal();
+        };
       }
 
       function cleanUrl(url) {
-        if (!url || typeof url !== 'string') {
-          return '/movies/poster.webp'; // Default placeholder
-        }
-
-        // Check if the URL is already a "clean" Amazon URL with size parameters
-        // e.g., https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_SY400.jpg
-        // or      https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_UX182_CR0,0,182,268_AL_.jpg
-        // We want to replace the part after ._V1_ up to the extension.
+        if (!url || typeof url !== 'string') return '/movies/poster.webp';
 
         const imdbPattern = /^(.*)(\._V1_)(.*)(\.[^.]+)$/;
         const match = url.match(imdbPattern);
 
         if (match) {
-          // We have a typical IMDB URL. Reconstruct it with SY400 (height 400px).
-          // match[1] is the base part of the URL
-          // match[4] is the extension (e.g., .jpg)
           return `${match[1]}._V1_SY400${match[4]}`;
-        } else {
-          // It's not a standard IMDB URL we know how to resize, or it's already processed.
-          // It might be a URL that doesn't have the _V1_ part, or from a different source.
-          // Or it's a URL that has been processed by an older version of this function (e.g. has @@).
-          // Fallback: try to return it as is, but if it contains '@@', it's likely from an old format.
-          // In that specific '@@' case, try a simpler split, assuming the old format.
-          if (url.includes('@@')) {
-              const parts = url.split('@@');
-              const base = parts[0];
-              const extParts = url.split('.');
-              const extension = extParts.pop();
-              if (base && extension) {
-                  return `${base}@@._V1_SY400.${extension}`; // Attempt to fix older format
-              }
+        } else if (url.includes('@@')) {
+          const parts = url.split('@@');
+          const base = parts[0];
+          const extParts = url.split('.');
+          const extension = extParts.pop();
+          if (base && extension) {
+            return `${base}@@._V1_SY400.${extension}`;
           }
-          // If no specific IMDB pattern is matched, and no '@@' is found, return the URL as is.
-          // This handles cases where the URL might not be an IMDB one or is already correctly formatted.
-          // It also handles cases where the placeholder '/movies/poster.webp' might be passed unintentionally.
-          if (url === '/movies/poster.webp') return url;
-
-          // As a last resort for non-empty URLs that don't match, we'll try to append a generic resize parameter
-          // This is a bit of a guess, but better than truncating.
-          // However, it's safer to return it as is if we're unsure.
-          // For now, let's return as is if no specific pattern is matched.
-          return url;
         }
+
+        return url === '/movies/poster.webp' ? url : url;
       }
 
-      // Initialize UI and apply filters on page load
       window.addEventListener('DOMContentLoaded', initializeUI);
     </script>
 </body>
