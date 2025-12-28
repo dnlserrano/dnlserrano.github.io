@@ -70,7 +70,7 @@
         <div class="modal-content bg-gray-800 rounded-lg shadow-lg">
             <span class="close-button float-right text-2xl font-bold text-gray-400 cursor-pointer">&times;</span>
             <div class="md:flex">
-                <img id="modal-poster-url" src="" alt="" style="width: 240px; height: 330px; object-fit: cover;" onerror="this.src='./poster.webp'">
+                <img id="modal-poster-url" src="" alt="" style="width: 240px; height: 330px; object-fit: cover;" onerror="this.src='/movies/poster.webp'">
                 <div class="md:ml-6 mt-4 md:mt-0">
                     <a href="#" id="modal-title-href">
                         <h1 id="modal-title" class="text-3xl font-bold underline"></h1>
@@ -148,7 +148,7 @@
           movieElement.className = 'bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer transform hover:scale-105 transition-transform duration-200';
           movieElement.innerHTML = `
             <a onclick="showMovieDetails('${movie.id}')">
-              <img src="${cleanUrl(movie.poster_url)}" alt="${movie.title}" class="w-full h-96 object-cover" onerror="this.src='./poster.webp'">
+              <img src="${cleanUrl(movie.poster_url)}" alt="${movie.title}" class="w-full h-96 object-cover" onerror="this.src='/movies/poster.webp'">
               <div class="p-4">
                 <h2 class="text-xl font-semibold">${movie.title}</h2>
                 <div class="mt-2 text-gray-400">
@@ -197,7 +197,7 @@
           movieElement.className = 'bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer transform hover:scale-105 transition-transform duration-200';
           movieElement.innerHTML = `
             <a onclick="showMovieDetails('${movie.id}')">
-              <img src="${cleanUrl(movie.poster_url)}" alt="${movie.title}" class="w-full h-96 object-cover" onerror="this.src='./poster.webp'">
+              <img src="${cleanUrl(movie.poster_url)}" alt="${movie.title}" class="w-full h-96 object-cover" onerror="this.src='/movies/poster.webp'">
               <div class="p-4">
                 <h2 class="text-xl font-semibold">${movie.title}</h2>
                 <div class="mt-2 text-gray-400">
@@ -260,7 +260,7 @@
 
       function cleanUrl(url) {
         if (!url || typeof url !== 'string') {
-          return './poster.webp'; // Default placeholder
+          return '/movies/poster.webp'; // Default placeholder
         }
 
         // Check if the URL is already a "clean" Amazon URL with size parameters
@@ -293,8 +293,8 @@
           }
           // If no specific IMDB pattern is matched, and no '@@' is found, return the URL as is.
           // This handles cases where the URL might not be an IMDB one or is already correctly formatted.
-          // It also handles cases where the placeholder './poster.webp' might be passed unintentionally.
-          if (url === './poster.webp') return url;
+          // It also handles cases where the placeholder '/movies/poster.webp' might be passed unintentionally.
+          if (url === '/movies/poster.webp') return url;
 
           // As a last resort for non-empty URLs that don't match, we'll try to append a generic resize parameter
           // This is a bit of a guess, but better than truncating.
