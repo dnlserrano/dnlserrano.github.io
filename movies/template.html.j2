@@ -231,6 +231,7 @@
         document.getElementById("modal-date").textContent = movie.date || '';
         document.getElementById("modal-time").textContent = movie.time_display || '';
         document.getElementById("modal-rating").textContent = movie.averageRating || movie.rating || '';
+        document.getElementById("modal-plot").textContent = movie.plot || '';
         if (Array.isArray(movie.director)) {
           document.getElementById("modal-director").textContent = movie.director.join(', ');
         } else {

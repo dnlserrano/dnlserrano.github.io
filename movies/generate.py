@@ -10,7 +10,6 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
 
 import duckdb
-import imdb
 import jinja2
 
 # Log to stderr so it doesn't pollute the HTML output
@@ -173,27 +172,46 @@ def fetch_movie_data():
         for attempt in range(max_retries):
             try:
                 # Add delay to avoid rate limiting (stagger requests)
-                time.sleep(0.5 + (attempt * 1.0))  # 0.5s, 1.5s, 2.5s
+                time.sleep(0.3 + (attempt * 0.5))  # 0.3s, 0.8s, 1.3s
 
-                # Each thread gets its own IMDb instance to avoid threading issues
-                access = imdb.IMDb()
-                movie = access.get_movie(int(tconst[2:]))
+                # Use OMDB API instead of broken IMDbPY library
+                # Free API key 'trilogy' for testing (get your own at http://www.omdbapi.com/apikey.aspx)
+                omdb_url = f"http://www.omdbapi.com/?i={tconst}&apikey=trilogy"
+                response = requests.get(omdb_url, timeout=10)
+                response.raise_for_status()
+                data = response.json()
 
-                result = {
-                    'poster_url': movie.get('full-size cover url') or movie.get('cover url', ''),
-                    'rating': movie.get('rating'),
-                    'cast': [actor['name'] for actor in movie.get('cast', [])[:10]],
-                    'director': [d['name'] for d in movie.get('director', [])],
-                    'plot': movie.get('plot', [''])[0] if movie.get('plot') else '',
-                }
-                logger.info(f"✓ IMDB data for: {title} (rating: {result['rating']}, attempt: {attempt + 1})")
-                return title, result
-            except Exception as e:
-                if attempt < max_retries - 1:
-                    logger.warning(f"IMDB error for {title} (attempt {attempt + 1}/{max_retries}): {e}, retrying...")
-                    time.sleep(2 ** attempt)  # Exponential backoff: 1s, 2s, 4s
+                if data.get('Response') == 'True':
+                    # Parse rating from Ratings array
+                    rating = None
+                    for r in data.get('Ratings', []):
+                        if r.get('Source') == 'Internet Movie Database':
+                            rating_str = r.get('Value', '').split('/')[0]
+                            try:
+                                rating = float(rating_str)
+                            except:
+                                pass
+                            break
+
+                    # Parse cast from Actors string
+                    actors_str = data.get('Actors', '')
+                    cast = [a.strip() for a in actors_str.split(',')] if actors_str != 'N/A' else []
+
+                    # Parse director
+                    director_str = data.get('Director', '')
+                    director = [d.strip() for d in director_str.split(',')] if director_str != 'N/A' else []
+
+                    result = {
+                        'poster_url': data.get('Poster') if data.get('Poster') != 'N/A' else '',
+                        'rating': rating,
+                        'cast': cast[:10],  # Limit to 10
+                        'director': director,
+                        'plot': data.get('Plot') if data.get('Plot') != 'N/A' else '',
+                    }
+                    logger.info(f"✓ OMDB data for: {title} (rating: {result['rating']}, attempt: {attempt + 1})")
+                    return title, result
                 else:
-                    logger.warning(f"IMDB error for {title} after {max_retries} attempts: {e}")
+                    logger.warning(f"OMDB returned error for {title}: {data.get('Error', 'Unknown error')}")
                     return title, {
                         'poster_url': '',
                         'rating': None,
@@ -202,8 +220,12 @@ def fetch_movie_data():
                         'plot': '',
                     }
 
-    # Use ThreadPoolExecutor to fetch IMDB data in parallel
-    # Use only 3 workers to avoid rate limiting
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    logger.warning(f"OMDB error for {title} (attempt {attempt + 1}/{max_retries}): {e}, retrying...")
+                    time.sleep(2 ** attempt)  # Exponential backoff: 1s, 2s, 4s
+                else:
+                    logger.warning(f"OMDB error for {title} after {max_retries} attempts: {e}")
     if movies_to_fetch:
         logger.info(f"Fetching with 3 parallel workers and delays to avoid rate limiting...")
         with ThreadPoolExecutor(max_workers=3) as executor:
