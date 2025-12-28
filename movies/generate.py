@@ -3,6 +3,8 @@ import logging
 import os
 import re
 import requests
+import sys
+import time
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
@@ -11,12 +13,18 @@ import duckdb
 import imdb
 import jinja2
 
-logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+# Log to stderr so it doesn't pollute the HTML output
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(levelname)s: %(message)s',
+    stream=sys.stderr
+)
 logger = logging.getLogger(__name__)
 
 TEMPLATE_FILE = 'template.html.j2'
 MOVIES_FILE = 'moviesthisweek.json'
 IMDB_CACHE_FILE = 'imdb_cache.json'
+CACHE_VERSION = 2  # Increment this when data structure changes
 CHANNELS = [
     'TVCTOPH',
     'TVCEDIH',
@@ -38,19 +46,29 @@ CHANNELS = [
 ]
 
 def fetch_movie_data():
+    # Check if cached data exists and is current version
     if os.path.exists(MOVIES_FILE):
-        logger.info(f"Loading cached data from {MOVIES_FILE}")
-        with open(MOVIES_FILE, 'r') as f:
-            return json.load(f)
+        logger.info(f"Checking cached data from {MOVIES_FILE}")
+        try:
+            with open(MOVIES_FILE, 'r') as f:
+                cached = json.load(f)
+                # Check if it's the new versioned format
+                if isinstance(cached, dict) and cached.get('version') == CACHE_VERSION:
+                    logger.info("Using cached data (version matches)")
+                    return cached.get('movies', [])
+                else:
+                    logger.info("Cache version mismatch or old format, refreshing...")
+        except Exception as e:
+            logger.warning(f"Could not load cache: {e}, refreshing...")
 
     logger.info("Fetching TV guide from MEO API...")
 
-    # Fetch programs for today and the next 6 days
+    # Fetch programs for yesterday, today, and tomorrow only
     all_programs = []
     today = datetime.now()
 
     for channel in CHANNELS:
-        for day_offset in range(7):
+        for day_offset in range(-1, 2):  # -1 (yesterday), 0 (today), 1 (tomorrow)
             date = today + timedelta(days=day_offset)
             date_str = date.strftime('%Y-%m-%d')
 
@@ -150,34 +168,45 @@ def fetch_movie_data():
         title, movie_db_info = title_and_info
         tconst = movie_db_info[0]
 
-        try:
-            # Each thread gets its own IMDb instance to avoid threading issues
-            access = imdb.IMDb()
-            movie = access.get_movie(int(tconst[2:]))
+        # Retry logic with exponential backoff
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                # Add delay to avoid rate limiting (stagger requests)
+                time.sleep(0.5 + (attempt * 1.0))  # 0.5s, 1.5s, 2.5s
 
-            result = {
-                'poster_url': movie.get('cover url', ''),
-                'rating': movie.get('rating'),
-                'cast': [actor['name'] for actor in movie.get('cast', [])[:10]],
-                'director': [d['name'] for d in movie.get('director', [])],
-                'plot': movie.get('plot', [''])[0] if movie.get('plot') else '',
-            }
-            logger.info(f"✓ IMDB data for: {title}")
-            return title, result
-        except Exception as e:
-            logger.debug(f"IMDB error for {title}: {e}")
-            return title, {
-                'poster_url': '',
-                'rating': None,
-                'cast': [],
-                'director': [],
-                'plot': '',
-            }
+                # Each thread gets its own IMDb instance to avoid threading issues
+                access = imdb.IMDb()
+                movie = access.get_movie(int(tconst[2:]))
+
+                result = {
+                    'poster_url': movie.get('full-size cover url') or movie.get('cover url', ''),
+                    'rating': movie.get('rating'),
+                    'cast': [actor['name'] for actor in movie.get('cast', [])[:10]],
+                    'director': [d['name'] for d in movie.get('director', [])],
+                    'plot': movie.get('plot', [''])[0] if movie.get('plot') else '',
+                }
+                logger.info(f"✓ IMDB data for: {title} (rating: {result['rating']}, attempt: {attempt + 1})")
+                return title, result
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    logger.warning(f"IMDB error for {title} (attempt {attempt + 1}/{max_retries}): {e}, retrying...")
+                    time.sleep(2 ** attempt)  # Exponential backoff: 1s, 2s, 4s
+                else:
+                    logger.warning(f"IMDB error for {title} after {max_retries} attempts: {e}")
+                    return title, {
+                        'poster_url': '',
+                        'rating': None,
+                        'cast': [],
+                        'director': [],
+                        'plot': '',
+                    }
 
     # Use ThreadPoolExecutor to fetch IMDB data in parallel
-    # Adjust max_workers based on your needs (10-20 is usually good)
+    # Use only 3 workers to avoid rate limiting
     if movies_to_fetch:
-        with ThreadPoolExecutor(max_workers=10) as executor:
+        logger.info(f"Fetching with 3 parallel workers and delays to avoid rate limiting...")
+        with ThreadPoolExecutor(max_workers=3) as executor:
             futures = {
                 executor.submit(fetch_imdb_data, item): item[0]
                 for item in movies_to_fetch.items()
@@ -215,7 +244,9 @@ def fetch_movie_data():
             'plot': '',
         })
 
-        channel_id = program.get('ChannelCallLetter', 'Unknown')
+        channel_id = program.get('ChannelCallLetter', program.get('CallLetter', 'Unknown'))
+        if channel_id == 'Unknown':
+            logger.debug(f"Unknown channel for {title}, keys: {list(program.keys())[:5]}")
         start_date = datetime.fromisoformat(program['StartDate'].replace('Z', ''))
         end_date = datetime.fromisoformat(program['EndDate'].replace('Z', ''))
 
@@ -245,8 +276,13 @@ def fetch_movie_data():
 
     logger.info(f"Found {len(movies)} movies total")
 
+    # Save with version info
     with open(MOVIES_FILE, 'w') as f:
-        json.dump(movies, f)
+        json.dump({
+            'version': CACHE_VERSION,
+            'generated_at': datetime.now().isoformat(),
+            'movies': movies
+        }, f, indent=2)
 
     return movies
 
